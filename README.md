@@ -83,6 +83,12 @@ which three are post-processed afterwards and which two of them ship in the inst
 the generated schema rejecting a real authoring mistake; and where LinkML stops and LOKF's own
 code starts.
 
+## For BERIL colleagues
+
+[docs/atlas-as-linkml.md](docs/atlas-as-linkml.md): the atlas's 1,466 lines of Python validation
+expressed as a LinkML schema for one type, what translated cleanly, one real defect it found,
+and the semantic difference that makes the translation a modelling decision rather than a port.
+
 ## What it's built on, and what else exists
 
 [docs/landscape.md](docs/landscape.md) covers the stack (Python required, Astro optional) and how this compares

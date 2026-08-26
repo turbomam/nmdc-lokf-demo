@@ -1,0 +1,113 @@
+id: https://example.org/beril/atlas
+name: beril_atlas
+title: BERIL atlas frontmatter (partial, opportunity type only)
+description: >-
+  A LinkML expression of the rules ui/app/atlas_lint.py enforces on atlas pages,
+  written to test whether they translate cleanly. Covers the shared required
+  fields and the opportunity type. Not a proposal, an experiment.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  atlas: https://example.org/beril/atlas/
+default_prefix: atlas
+default_range: string
+imports:
+  - linkml:types
+
+enums:
+  PageStatus:
+    permissible_values: {draft: {}, review: {}, published: {}, deprecated: {}}
+  OpportunityStatus:
+    description: atlas_lint.VALID_OPPORTUNITY_STATUS
+    permissible_values:
+      candidate: {}
+      active: {}
+      blocked: {}
+      completed: {}
+      deprecated: {}
+  OpportunityKind:
+    description: atlas_lint.VALID_OPPORTUNITY_KIND
+    permissible_values:
+      analysis: {}
+      experiment: {}
+      benchmark: {}
+      validation: {}
+      productization: {}
+      curation: {}
+  Score:
+    description: atlas_lint.VALID_OPPORTUNITY_SCORE
+    permissible_values: {high: {}, medium: {}, low: {}}
+
+classes:
+  AtlasPage:
+    abstract: true
+    description: The 13 keys atlas_lint requires on every page.
+    slots:
+      - id
+      - title
+      - type
+      - status
+      - summary
+      - source_projects
+      - source_docs
+      - related_collections
+      - related_pages
+      - confidence
+      - generated_by
+      - last_reviewed
+      - order
+
+  Evidence:
+    description: >-
+      Every one of the 24 evidence entries across the 12 opportunity pages has
+      exactly these two keys. atlas_lint checks that `evidence` is present; a
+      schema can type what is inside it.
+    slots:
+      - source
+      - support
+
+  Opportunity:
+    is_a: AtlasPage
+    description: atlas_lint.OPPORTUNITY_REQUIRED_FIELDS, all required.
+    slots:
+      - opportunity_status
+      - opportunity_kind
+      - impact
+      - feasibility
+      - readiness
+      - evidence_strength
+      - linked_conflicts
+      - linked_products
+      - target_outputs
+      - review_routes
+      - evidence
+    slot_usage:
+      type:
+        equals_string: opportunity
+
+slots:
+  id: {identifier: true, required: true}
+  title: {required: true}
+  type: {required: true}
+  status: {required: true, range: PageStatus}
+  summary: {required: true}
+  source_projects: {required: true, multivalued: true}
+  source_docs: {required: true, multivalued: true}
+  related_collections: {required: true, multivalued: true}
+  related_pages: {multivalued: true}
+  confidence: {required: true, range: Score}
+  generated_by: {required: true}
+  last_reviewed: {required: true, range: date}
+  order: {range: integer}
+  opportunity_status: {required: true, range: OpportunityStatus}
+  opportunity_kind: {required: true, range: OpportunityKind}
+  impact: {required: true, range: Score}
+  feasibility: {required: true, range: Score}
+  readiness: {required: true, range: Score}
+  evidence_strength: {required: true, range: Score}
+  linked_conflicts: {required: true, multivalued: true}
+  linked_products: {required: true, multivalued: true}
+  target_outputs: {required: true, multivalued: true}
+  review_routes: {required: true, multivalued: true}
+  evidence: {multivalued: true, range: Evidence, inlined_as_list: true}
+  source: {required: true}
+  support: {required: true}
