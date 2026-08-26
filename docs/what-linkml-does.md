@@ -45,11 +45,13 @@ So the honest claim is that LinkML does the bulk and the remainder is small, del
 documented in the build script. Adopting a LinkML schema alone would not reproduce these exact
 files.
 
-### Only three of the seven ship in the package
+### Only two of the six derived artifacts ship in the package
 
 `build.py` copies `lokf.yaml` and `lokf.context.jsonld` into `src/lokf/data`, and generates
-`src/lokf/datamodel.py`. The JSON Schema, SHACL shapes, OWL ontology and SQL DDL stay in the
-upstream repository. `lokf validate` reaches the JSON Schema by calling `linkml-validate`
+`src/lokf/datamodel.py`. So three files ship, but one of them is `lokf.yaml`, the hand-edited
+source rather than a derived artifact: of the six derived files, only the context and the
+Python bindings are in the wheel. The JSON Schema, SHACL shapes, OWL ontology and SQL DDL stay
+in the upstream repository. `lokf validate` reaches the JSON Schema by calling `linkml-validate`
 against the packaged `lokf.yaml`, not by shipping the generated schema.
 
 ## The schema is enforced, not decorative
@@ -93,10 +95,29 @@ source,predicate,target
 .../datasets/kbase-nmdc-arkin,dependsOn,.../glossary/berdl-tenant
 ```
 
-Both projections trace to the same 76 slot definitions, and neither requires a separate table
-declaration. That is the benefit; "cannot drift" would be too strong. RDF conversion reads the
-**committed** JSON-LD context, while `lokf tables` reads relation slots from the schema, so a
-schema change without a rebuilt context would make the two disagree.
+Neither projection requires a separate table declaration, and that is the benefit. Two things
+it is not.
+
+**The columns are not schema-derived.** `to_frames` in `src/lokf/tables.py` consults the schema
+at exactly one point, `vocabulary().relation_slots`, to decide which keys are edges. Every other
+key in the document becomes a column as-is. An undeclared key therefore lands in the CSV:
+
+```
+$ # add `totally_invented_key: hello` to a concept, then
+$ lokf tables <bundle> --format csv
+$ head -1 GlossaryTerm.csv
+type,id,title,definition,timestamp,status,totally_invented_key,body
+
+$ lokf validate <bundle>
+[ERROR] ... is not valid under any of the given schemas
+```
+
+The schema catches it; the table projection does not. Validation is a separate step, not a
+property of the projection.
+
+**They can drift.** RDF conversion reads the **committed** JSON-LD context while `lokf tables`
+reads relation slots from the schema, so a schema change without a rebuilt context makes the two
+disagree.
 
 Note also what generates what. LinkML's `gen-sqltables` produces the relational **schema**
 (`lokf.sql`). Projecting the **instances** to CSV or Parquet is LOKF's own code,

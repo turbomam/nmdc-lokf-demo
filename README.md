@@ -79,8 +79,9 @@ SHACL shapes, OWL ontology and SQL DDL are generated from it.
 
 [docs/what-linkml-does.md](docs/what-linkml-does.md): 1,624 lines of LinkML schema yield 16,648
 lines of JSON-LD context, JSON Schema, SHACL, OWL, SQL DDL and Python bindings, with a note on
-which three are post-processed afterwards and which three ship in the package; the generated
-schema rejecting a real authoring mistake; and where LinkML stops and LOKF's own code starts.
+which three are post-processed afterwards and which two of them ship in the installed package;
+the generated schema rejecting a real authoring mistake; and where LinkML stops and LOKF's own
+code starts.
 
 ## What it's built on, and what else exists
 
