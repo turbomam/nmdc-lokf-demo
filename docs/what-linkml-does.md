@@ -11,8 +11,15 @@ Every figure below was counted or run on 2026-08-26 against LOKF 0.5.0. Nothing 
 slots, 5 enums, 3 subsets**. Six artifacts are derived from it.
 
 **None of these files are in this repository.** They live in the upstream LOKF project,
-https://github.com/nicholsn/lokf. The counts below were taken from that repository at version
-0.5.0; to check them, clone it and count.
+https://github.com/nicholsn/lokf. The counts below were taken from that repository at the
+`v0.5.0` tag. To check them, check that tag out rather than the default branch, which has moved
+on:
+
+```bash
+git clone https://github.com/nicholsn/lokf && cd lokf && git checkout v0.5.0
+wc -l lokf.yaml lokf.context.jsonld lokf.schema.json lokf.shacl.ttl \
+      lokf.owl.ttl lokf.sql src/lokf/datamodel.py
+```
 
 | Derived artifact | Lines | Generator | Post-processed by `build.py`? | In the installed wheel? |
 |---|---:|---|---|---|
@@ -60,7 +67,8 @@ While authoring this bundle I invented a key. `seeAlso` looks like it should exi
 slot on `Concept`. The generated JSON Schema refused it:
 
 ```
-[ERROR] [<temp bundle>/0] {'type': 'Dataset', 'id': '.../datasets/broken-example',
+[ERROR] [<temp bundle>/0] {'type': 'Dataset',
+ 'id': 'https://turbomam.github.io/nmdc-lokf-demo/datasets/broken-example',
  'title': 'Broken example', 'seeAlso': ['https://example.org/not-a-slot'], 'body': '# Body'}
  is not valid under any of the given schemas in /concepts/0
 ```
