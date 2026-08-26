@@ -34,9 +34,9 @@ tables:
 ttl:
     uvx --from lokf lokf convert knowledge --format ttl -o knowledge.ttl
 
-# What CI checks: bundle validates and knowledge.ttl is current.
-# Read-only: regenerates to a temp file so the working tree is never touched.
-# Use `just ttl` when you actually want to rewrite knowledge.ttl.
+# Read-only: what CI checks, without touching the working tree
+#   validates the bundle, then diffs knowledge.ttl against a temp regeneration.
+#   `just ttl` is the command that actually rewrites it.
 check:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -49,3 +49,18 @@ check:
       exit 1
     fi
     echo "knowledge.ttl is current."
+
+# Is a pull request safe to merge? Exits nonzero if not. See CONTRIBUTING.md.
+ready pr:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v pr-ready.sh >/dev/null 2>&1 || [ -x "$HOME/bin/pr-ready.sh" ]; then
+      "${HOME}/bin/pr-ready.sh" turbomam/nmdc-lokf-demo {{pr}}
+    else
+      echo "pr-ready.sh not installed. The check by hand:" >&2
+      echo "  gh api repos/turbomam/nmdc-lokf-demo/pulls/{{pr}} --jq .head.sha" >&2
+      echo "  gh api repos/turbomam/nmdc-lokf-demo/pulls/{{pr}}/reviews --jq '.[]|select(.user.login|test(\"copilot\"))|.submitted_at'" >&2
+      echo "  gh api repos/turbomam/nmdc-lokf-demo/pulls/{{pr}}/reviews --jq '.[]|select(.body|test(\"Suppressed\"))|.body'" >&2
+      echo "The review must be NEWER than the head commit and report nothing." >&2
+      exit 1
+    fi
