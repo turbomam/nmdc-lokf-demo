@@ -75,6 +75,12 @@ with no separate file:
 The whole format is defined in one LinkML schema, and the JSON-LD context, JSON Schema,
 SHACL shapes, OWL ontology and SQL DDL are generated from it.
 
+## What LinkML actually does here
+
+[docs/what-linkml-does.md](docs/what-linkml-does.md): one 1,624-line LinkML schema generates
+16,648 lines of JSON-LD context, JSON Schema, SHACL, OWL, SQL DDL and Python bindings; the
+schema rejecting a real authoring mistake; and the same bundle projected to relational tables.
+
 ## What it's built on, and what else exists
 
 [docs/landscape.md](docs/landscape.md) covers the stack (Python required, Astro optional) and how this compares

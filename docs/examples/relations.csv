@@ -1,0 +1,10 @@
+source,predicate,target
+https://turbomam.github.io/nmdc-lokf-demo/datasets/kbase-nmdc-arkin,derivedFrom,https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-metadata
+https://turbomam.github.io/nmdc-lokf-demo/datasets/kbase-nmdc-arkin,dependsOn,https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant
+https://turbomam.github.io/nmdc-lokf-demo/datasets/kbase-nmdc-arkin,about,https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name
+https://turbomam.github.io/nmdc-lokf-demo/datasets/kbase-nmdc-neon,dependsOn,https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant
+https://turbomam.github.io/nmdc-lokf-demo/datasets/kbase-nmdc-neon,about,https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name
+https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-metadata,dependsOn,https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant
+https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-metadata,about,https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name
+https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-ncbi-biosamples,dependsOn,https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant
+https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-ncbi-biosamples,about,https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name
