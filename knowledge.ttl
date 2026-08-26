@@ -1,0 +1,76 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix lokf: <https://w3id.org/lokf/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix schema1: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://w3id.org/turbomam/nmdc-lokf-demo/datasets/kbase-nmdc-arkin> a schema1:Dataset ;
+    dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
+    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
+    schema1:creativeWorkStatus "draft" ;
+    schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
+    schema1:description "LBNL Arkin Lab enriched derivative of NMDC omics, carrying embeddings, traits, and unified annotations." ;
+    schema1:keywords "derived" ;
+    schema1:name "kbase.nmdc_arkin" ;
+    schema1:text """# Provenance
+NMDC-derived, hosted in the kbase tenant. Currency 2026-05-27 at audit time.""" ;
+    prov:wasDerivedFrom <https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-metadata> .
+
+<https://w3id.org/turbomam/nmdc-lokf-demo/datasets/kbase-nmdc-neon> a schema1:Dataset ;
+    dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
+    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
+    schema1:creativeWorkStatus "draft" ;
+    schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
+    schema1:description "NEON (National Ecological Observatory Network) data processed with NMDC-style workflows. Not NMDC data despite the name." ;
+    schema1:keywords "namesake-collision" ;
+    schema1:name "kbase.nmdc_neon" ;
+    schema1:text """# Provenance
+NSF NEON program. The nmdc_ prefix refers to the workflow style, not the producer.""" .
+
+<https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-ncbi-biosamples> a schema1:Dataset ;
+    dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
+    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
+    schema1:creativeWorkStatus "draft" ;
+    schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
+    schema1:description "A harvested NCBI BioSample mirror re-hosted under the nmdc tenant. Not NMDC-generated." ;
+    schema1:keywords "harvested" ;
+    schema1:name "nmdc.ncbi_biosamples" ;
+    schema1:text """# Provenance
+Authority is ncbi.nlm.nih.gov/biosample. Sits in the nmdc tenant, which is the trap.""" .
+
+<https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-metadata> a schema1:Dataset ;
+    dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
+    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
+    schema1:creativeWorkStatus "draft" ;
+    schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
+    schema1:description "Canonical NMDC study, biosample, and omics metadata." ;
+    schema1:keywords "canonical" ;
+    schema1:name "nmdc.metadata" ;
+    schema1:text """# Provenance
+Produced by NMDC. This is the canonical resource.""" .
+
+<https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> a lokf:Explanation ;
+    schema1:creativeWorkStatus "draft" ;
+    schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
+    schema1:description "One \"NMDC\" label spans three BERDL tenants and six provenance classes, so the name alone does not tell you who produced the data." ;
+    schema1:genre "explanation" ;
+    schema1:keywords "berdl",
+        "nmdc",
+        "provenance" ;
+    schema1:name "The NMDC label is overloaded" ;
+    schema1:text """# Why this matters
+Searching a lakehouse catalog for "nmdc" returns databases produced by NMDC, databases
+harvested from elsewhere and re-hosted under the NMDC tenant, and databases about an
+entirely different program that share the prefix. Choosing by name alone is unreliable.
+
+Source: the `nmdc_context_audit` project in BERIL, measured 2026-07-10.""" .
+
+<https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> a schema1:DefinedTerm ;
+    schema1:creativeWorkStatus "draft" ;
+    schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
+    schema1:name "BERDL tenant" ;
+    schema1:text """# Note
+A tenant says where a database is hosted. It does not say who produced the data.""" ;
+    skos:definition "The top-level namespace of a database in the BERDL lakehouse catalog, such as nmdc, kbase, globalusers, or a username." .
+
