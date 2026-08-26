@@ -58,7 +58,7 @@ BERIL has four. This demo is smaller than three of them and overlaps none of the
 | Aggregation | What it is | Scale | Where its structure lives |
 |---|---|---|---|
 | **OpenViking** | Retrieval. Embeds and searches text. Lives in `knowledge/openviking/` and `observatory_context/openviking_client.py`. | Not applicable | Not applicable; it indexes content |
-| **The atlas** | Curated research knowledge base | **141 pages, 16 types** | **Python** (`ui/app/atlas_lint.py`, 645 lines) |
+| **The atlas** | Curated research knowledge base | **141 pages, 16 types** | **Python**, 645 lines in BERIL's `ui/app/atlas_lint.py` |
 | **The compendium** | Statement-card KG synthesis wiki | **48,865 lines, 372 files** | **LinkML**, and **not released** |
 | **Project `knowledge/` bundles** | Per-project context documents | 15 files in `projects/nmdc_context_audit/knowledge/` | Nowhere |
 
@@ -78,7 +78,8 @@ That is a typed concept vocabulary with typed relations, provenance of the asser
 a confidence rating, and a review date. It is a more developed knowledge model than this demo
 and than LOKF's own example bundle.
 
-Its structure is enforced, but as imperative Python. `ui/app/atlas_lint.py` holds
+Its structure is enforced, but as imperative Python. These files are in the BERIL repository,
+not this one. [`ui/app/atlas_lint.py`](https://github.com/kbaseincubator/BERIL-research-observatory/blob/main/ui/app/atlas_lint.py) holds
 `REQUIRED_ATLAS_FIELDS`, `ATLAS_PAGE_TYPES`, `EVIDENCE_REQUIRED_TYPES`,
 `DERIVED_PRODUCT_REQUIRED_FIELDS`, `CONFLICT_REQUIRED_FIELDS`,
 `OPPORTUNITY_REQUIRED_FIELDS`, status enums such as
