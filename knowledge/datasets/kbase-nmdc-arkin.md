@@ -2,7 +2,7 @@
 type: Dataset
 id: https://w3id.org/turbomam/nmdc-lokf-demo/datasets/kbase-nmdc-arkin
 title: kbase.nmdc_arkin
-description: LBNL Arkin Lab enriched derivative of NMDC omics, carrying embeddings, traits, and unified annotations.
+description: Omics records originating with NMDC, which the Arkin Lab at LBNL has extended with vector embeddings, organism trait assignments, and a reconciled annotation layer.
 timestamp: 2026-08-26T00:00:00Z
 status: draft
 derivedFrom: [ https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-metadata ]

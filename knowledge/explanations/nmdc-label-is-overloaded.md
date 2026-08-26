@@ -4,7 +4,7 @@ id: https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overload
 title: The NMDC label is overloaded
 genre: explanation
 timestamp: 2026-08-26T00:00:00Z
-description: One "NMDC" label spans three BERDL tenants and six provenance classes, so the name alone does not tell you who produced the data.
+description: Databases whose names contain nmdc sit in three different tenants and were produced by six different groups, so matching on the name tells you nothing about who made the data.
 status: draft
 tags: [nmdc, berdl, provenance]
 ---
