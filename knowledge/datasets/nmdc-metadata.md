@@ -6,8 +6,9 @@ description: Study, biosample, and omics records that NMDC itself produces and t
 timestamp: 2026-08-26T00:00:00Z
 status: draft
 dependsOn: [ https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant ]
-about: [ https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded ]
-tags: [canonical]
+about: [ https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name ]
+tags: [produced-by-nmdc]
 ---
 # Provenance
-Produced by NMDC. This is the canonical resource.
+Producer: NMDC. Host tenant: `nmdc`. Both axes agree here, which is what
+makes this the authoritative surface for NMDC records.

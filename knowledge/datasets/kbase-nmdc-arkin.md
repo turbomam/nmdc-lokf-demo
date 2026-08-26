@@ -7,8 +7,9 @@ timestamp: 2026-08-26T00:00:00Z
 status: draft
 derivedFrom: [ https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-metadata ]
 dependsOn: [ https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant ]
-about: [ https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded ]
-tags: [derived]
+about: [ https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name ]
+tags: [produced-by-arkin-lab]
 ---
 # Provenance
-NMDC-derived, hosted in the kbase tenant. Currency 2026-05-27 at audit time.
+Producer: the Arkin Lab at LBNL, working from NMDC omics. Host tenant: `kbase`.
+Snapshot currency 2026-05-27 as recorded by the audit.

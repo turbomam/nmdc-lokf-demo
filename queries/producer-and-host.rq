@@ -1,0 +1,13 @@
+# The two axes, side by side.
+# Host tenant is carried by the name, so it can be read off the string.
+# Producer cannot be, so it is read off the graph.
+PREFIX schema: <http://schema.org/>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+SELECT ?name ?hostTenant ?producer ?derivedFrom WHERE {
+  ?d a schema:Dataset ;
+     schema:name ?name ;
+     schema:keywords ?producer .
+  BIND(STRBEFORE(?name, ".") AS ?hostTenant)
+  OPTIONAL { ?d prov:wasDerivedFrom ?derivedFrom }
+}
+ORDER BY ?hostTenant ?name

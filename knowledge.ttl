@@ -7,64 +7,82 @@
 
 <https://w3id.org/turbomam/nmdc-lokf-demo/datasets/kbase-nmdc-arkin> a schema1:Dataset ;
     dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
-    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
+    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
     schema1:description "Omics records originating with NMDC, which the Arkin Lab at LBNL has extended with vector embeddings, organism trait assignments, and a reconciled annotation layer." ;
-    schema1:keywords "derived" ;
+    schema1:keywords "produced-by-arkin-lab" ;
     schema1:name "kbase.nmdc_arkin" ;
     schema1:text """# Provenance
-NMDC-derived, hosted in the kbase tenant. Currency 2026-05-27 at audit time.""" ;
+Producer: the Arkin Lab at LBNL, working from NMDC omics. Host tenant: `kbase`.
+Snapshot currency 2026-05-27 as recorded by the audit.""" ;
     prov:wasDerivedFrom <https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-metadata> .
 
 <https://w3id.org/turbomam/nmdc-lokf-demo/datasets/kbase-nmdc-neon> a schema1:Dataset ;
     dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
-    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
+    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "Observations collected by the NSF National Ecological Observatory Network, processed through workflows of the kind NMDC uses. The producer is NEON, not NMDC." ;
-    schema1:keywords "namesake-collision" ;
+    schema1:description "Observations collected by the NSF National Ecological Observatory Network, processed through workflows of the kind NMDC uses." ;
+    schema1:keywords "produced-by-neon" ;
     schema1:name "kbase.nmdc_neon" ;
     schema1:text """# Provenance
-NSF NEON program. The nmdc_ prefix refers to the workflow style, not the producer.""" .
+Producer: the NSF NEON program. Host tenant: `kbase`. The `nmdc_` element of the
+name refers to the processing style, which is a third thing again, distinct from both
+the host and the producer.""" .
 
 <https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-ncbi-biosamples> a schema1:Dataset ;
     dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
-    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
+    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "A copy of NCBI BioSample records, pulled from NCBI and stored under the nmdc tenant. NMDC did not create these records." ;
-    schema1:keywords "harvested" ;
+    schema1:description "A copy of NCBI BioSample records, pulled from NCBI and hosted under the nmdc tenant so NMDC users can reach them alongside NMDC records." ;
+    schema1:keywords "produced-by-ncbi" ;
     schema1:name "nmdc.ncbi_biosamples" ;
     schema1:text """# Provenance
-Authority is ncbi.nlm.nih.gov/biosample. Sits in the nmdc tenant, which is the trap.""" .
+Producer: NCBI; the authority for these records is ncbi.nlm.nih.gov/biosample.
+Host tenant: `nmdc`. This is a case where the two axes differ.""" .
 
 <https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-metadata> a schema1:Dataset ;
     dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
-    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
+    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
     schema1:description "Study, biosample, and omics records that NMDC itself produces and treats as authoritative." ;
-    schema1:keywords "canonical" ;
+    schema1:keywords "produced-by-nmdc" ;
     schema1:name "nmdc.metadata" ;
     schema1:text """# Provenance
-Produced by NMDC. This is the canonical resource.""" .
+Producer: NMDC. Host tenant: `nmdc`. Both axes agree here, which is what
+makes this the authoritative surface for NMDC records.""" .
 
-<https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> a lokf:Explanation ;
+<https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> a lokf:Explanation ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "Databases whose names contain nmdc sit in three different tenants and were produced by six different groups, so matching on the name tells you nothing about who made the data." ;
+    schema1:description "A database name carries one axis, where the data is hosted. Who produced the data is a second, independent axis, and no naming scheme carries both at once." ;
     schema1:genre "explanation" ;
     schema1:keywords "berdl",
-        "nmdc",
+        "modelling",
         "provenance" ;
-    schema1:name "The NMDC label is overloaded" ;
-    schema1:text """# Why this matters
-Searching a lakehouse catalog for "nmdc" returns databases produced by NMDC, databases
-harvested from elsewhere and re-hosted under the NMDC tenant, and databases about an
-entirely different program that share the prefix. Choosing by name alone is unreliable.
+    schema1:name "Provenance is not in the name" ;
+    schema1:text """# The two axes
+A BERDL database name gives you a tenant and a short label. The tenant says who hosts and
+curates the database. It does not say who produced the records inside it, and it was never
+meant to.
 
-Source: the `nmdc_context_audit` project in BERIL, measured 2026-07-10.""" .
+Those two facts vary independently. A tenant can host data it did not produce, and data a
+group produced can be hosted by someone else. Two independent axes cannot both be encoded in
+one string without losing information, so a reader who infers a producer from a name is
+inferring something the name does not carry.
+
+# Why this is the right shape for a graph
+Hosting and production are separate properties of the same resource, which is exactly what a
+graph represents well and a naming convention does not. `prov:wasDerivedFrom` states the
+production lineage; the tenant stays where it belongs, in the name and the catalog.
+
+The tenant boundaries here are deliberate. NMDC-derived products were placed in the `kbase`
+tenant so that the `nmdc` tenant stays a clean, authoritative surface that the NMDC team
+curates. That separation is what makes the hosting axis meaningful. This bundle adds the
+production axis alongside it rather than in place of it.""" .
 
 <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> a schema1:DefinedTerm ;
     schema1:creativeWorkStatus "draft" ;
