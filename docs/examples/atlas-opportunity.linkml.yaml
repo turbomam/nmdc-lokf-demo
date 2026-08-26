@@ -40,7 +40,12 @@ enums:
 classes:
   AtlasPage:
     abstract: true
-    description: The 13 keys atlas_lint requires on every page.
+    description: >-
+      The 11 keys in atlas_lint.REQUIRED_ATLAS_FIELDS, marked required, plus
+      `related_pages` and `order`, which every one of the 141 atlas pages carries
+      but which the linter does not require. Present-on-every-page and
+      required-by-the-linter are different sets, and only writing the schema
+      made that obvious.
     slots:
       - id
       - title
@@ -67,7 +72,12 @@ classes:
 
   Opportunity:
     is_a: AtlasPage
-    description: atlas_lint.OPPORTUNITY_REQUIRED_FIELDS, all required.
+    description: >-
+      The 10 fields in atlas_lint.OPPORTUNITY_REQUIRED_FIELDS, all required, plus
+      `evidence`. `evidence` is required for this type too, but by a different
+      rule: `opportunity` is a member of EVIDENCE_REQUIRED_TYPES, checked
+      separately from the field set. Expressed here as slot_usage so the slot
+      stays optional on types that do not need it.
     slots:
       - opportunity_status
       - opportunity_kind
@@ -83,6 +93,8 @@ classes:
     slot_usage:
       type:
         equals_string: opportunity
+      evidence:
+        required: true
 
 slots:
   id: {identifier: true, required: true}

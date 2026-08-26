@@ -25,8 +25,16 @@ integrity checks against a collections snapshot. With `atlas_graph.py` (498 line
 Asserting "that could be a schema" is cheap. This is what happened when we wrote one.
 
 [`examples/atlas-opportunity.linkml.yaml`](examples/atlas-opportunity.linkml.yaml) expresses the
-`opportunity` type: the 13 shared required fields, the 10 in `OPPORTUNITY_REQUIRED_FIELDS`, and
-all four `VALID_*` sets as enums. It parses as LinkML: 3 classes, 26 slots, 4 enums.
+`opportunity` type: the **11** fields in `REQUIRED_ATLAS_FIELDS`, the 10 in
+`OPPORTUNITY_REQUIRED_FIELDS`, `evidence`, and all four `VALID_*` sets as enums. It parses as
+LinkML: 3 classes, 26 slots, 4 enums.
+
+Writing it forced two distinctions the prose above blurs. **Thirteen keys appear on every page;
+eleven are required.** `related_pages` and `order` are universal by convention, not by rule. And
+`evidence` is required for opportunity pages by a different mechanism than the others:
+`opportunity` is in `EVIDENCE_REQUIRED_TYPES`, checked separately from the field set, so the
+schema expresses it as `slot_usage` rather than a plain `required: true`. Neither distinction is
+visible until something makes you write the rule down, which is the argument in miniature.
 
 **The rules translated without resistance.** Every required-field set became `required: true`.
 Every `VALID_*` set became an enum, one to one. Nothing in `atlas_lint.py`'s field and value
