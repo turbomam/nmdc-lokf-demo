@@ -1,0 +1,4 @@
+[ERROR] [<temp bundle>/0] {'type': 'Dataset', 'id': 'https://turbomam.github.io/nmdc-lokf-demo/datasets/broken-example', 'title': 'Broken example', 'seeAlso': ['https://example.org/not-a-slot'], 'body': '# Body'} is not valid under any of the given schemas in /concepts/0
+
+# Paths elided: lokf validate assembles the bundle into a temp file, so the
+# bracketed location differs on every run and every machine.
