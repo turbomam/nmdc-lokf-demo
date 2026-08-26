@@ -1,6 +1,6 @@
 ---
 type: GlossaryTerm
-id: https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant
+id: https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant
 title: BERDL tenant
 definition: The top-level namespace of a database in the BERDL lakehouse catalog, such as nmdc, kbase, globalusers, or a username.
 timestamp: 2026-08-26T00:00:00Z

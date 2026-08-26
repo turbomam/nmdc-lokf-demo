@@ -1,6 +1,6 @@
 ---
 type: Explanation
-id: https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name
+id: https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name
 title: Provenance is not in the name
 genre: explanation
 timestamp: 2026-08-26T00:00:00Z
