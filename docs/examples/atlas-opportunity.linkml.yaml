@@ -1,0 +1,131 @@
+id: https://example.org/beril/atlas
+name: beril_atlas
+title: BERIL atlas frontmatter (partial, opportunity type only)
+description: >-
+  A LinkML expression of the rules enforced by ui/app/atlas_lint.py in the BERIL
+  Research Observatory repository (github.com/kbaseincubator/BERIL-research-observatory),
+  not in this one. Written to test whether they translate cleanly. Covers the
+  shared required fields and the opportunity type, one of sixteen. Not a
+  proposal, an experiment.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  atlas: https://example.org/beril/atlas/
+default_prefix: atlas
+default_range: string
+imports:
+  - linkml:types
+
+enums:
+  PageStatus:
+    permissible_values: {draft: {}, review: {}, published: {}, deprecated: {}}
+  OpportunityStatus:
+    description: atlas_lint.VALID_OPPORTUNITY_STATUS
+    permissible_values:
+      candidate: {}
+      active: {}
+      blocked: {}
+      completed: {}
+      deprecated: {}
+  OpportunityKind:
+    description: atlas_lint.VALID_OPPORTUNITY_KIND
+    permissible_values:
+      analysis: {}
+      experiment: {}
+      benchmark: {}
+      validation: {}
+      productization: {}
+      curation: {}
+  Score:
+    description: atlas_lint.VALID_OPPORTUNITY_SCORE
+    permissible_values: {high: {}, medium: {}, low: {}}
+
+classes:
+  AtlasPage:
+    abstract: true
+    description: >-
+      The 11 keys in atlas_lint.REQUIRED_ATLAS_FIELDS, marked required, plus
+      `related_pages` and `order`, which every one of the 141 atlas pages carries
+      but which the linter does not require. Present-on-every-page and
+      required-by-the-linter are different sets, and only writing the schema
+      made that obvious.
+    slots:
+      - id
+      - title
+      - type
+      - status
+      - summary
+      - source_projects
+      - source_docs
+      - related_collections
+      - related_pages
+      - confidence
+      - generated_by
+      - last_reviewed
+      - order
+
+  Evidence:
+    description: >-
+      Every one of the 24 evidence entries across the 12 opportunity pages has
+      exactly these two keys. atlas_lint checks that `evidence` is present; a
+      schema can type what is inside it.
+    slots:
+      - source
+      - support
+
+  Opportunity:
+    is_a: AtlasPage
+    tree_root: true
+    description: >-
+      The 10 fields in atlas_lint.OPPORTUNITY_REQUIRED_FIELDS, all required, plus
+      `evidence`. `evidence` is required for this type too, but by a different
+      rule: `opportunity` is a member of EVIDENCE_REQUIRED_TYPES, checked
+      separately from the field set. Expressed here as slot_usage so the slot
+      stays optional on types that do not need it.
+    slots:
+      - opportunity_status
+      - opportunity_kind
+      - impact
+      - feasibility
+      - readiness
+      - evidence_strength
+      - linked_conflicts
+      - linked_products
+      - target_outputs
+      - review_routes
+      - evidence
+    slot_usage:
+      type:
+        equals_string: opportunity
+      evidence:
+        required: true
+
+slots:
+  id: {identifier: true, required: true}
+  title: {required: true}
+  type: {required: true}
+  status: {required: true, range: PageStatus}
+  summary: {required: true}
+  source_projects: {required: true, multivalued: true}
+  source_docs: {required: true, multivalued: true}
+  related_collections: {required: true, multivalued: true}
+  related_pages: {multivalued: true}
+  confidence: {required: true, range: Score}
+  generated_by: {required: true}
+  last_reviewed: {required: true, range: date}
+  order: {range: integer}
+  opportunity_status: {required: true, range: OpportunityStatus}
+  opportunity_kind: {required: true, range: OpportunityKind}
+  impact: {required: true, range: Score}
+  feasibility: {required: true, range: Score}
+  readiness: {required: true, range: Score}
+  evidence_strength: {required: true, range: Score}
+  linked_conflicts: {required: true, multivalued: true}
+  linked_products: {required: true, multivalued: true}
+  target_outputs: {required: true, multivalued: true}
+  review_routes: {required: true, multivalued: true}
+  # `inlined: true` is redundant here and set only to state intent: Evidence has
+  # no identifier slot, so it cannot be referenced and LinkML inlines it anyway.
+  # Verified: without it, a malformed evidence entry is still rejected.
+  evidence: {multivalued: true, range: Evidence, inlined: true, inlined_as_list: true}
+  source: {required: true}
+  support: {required: true}
