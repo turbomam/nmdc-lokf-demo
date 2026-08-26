@@ -39,7 +39,7 @@ It exits nonzero unless all of these hold:
 - that review has no inline comments
 - that review has no **suppressed** comments
 - no superseded review has unaddressed suppressed comments
-- every review thread has a reply
+- every review thread has a reply **from the account running the gate**, not merely some reply
 - no check is failing or still running
 
 ### If you do not have `pr-ready.sh`
@@ -56,9 +56,23 @@ Each of those was a real bug in a second implementation of a tool that already e
 exercised the copy, so nothing caught them until a reviewer did, one per round. Install the
 helper instead.
 
-Its own known flaw is worth knowing: it compares review timestamps rather than the reviewed
-`commit_id`, which cannot prove a review saw the head commit. Tracked at
-https://github.com/turbomam/bin/issues/134
+Install it from `turbomam/bin`, which is where it lives, and put it on `PATH` or at
+`~/bin/pr-ready.sh`; `just ready` looks in both.
+
+**A green result from it is not a proof.** It compares review timestamps rather than the
+reviewed `commit_id`, so it can accept a review that examined the previous head: a commit is
+dated when you create it, and a review posting after that date may still have run before you
+pushed. Tracked at https://github.com/turbomam/bin/issues/134. Until that is fixed, confirm
+the first condition by hand when it matters:
+
+```bash
+gh api repos/<owner>/<repo>/pulls/<n> --jq .head.sha
+gh api repos/<owner>/<repo>/pulls/<n>/reviews --paginate \
+  --jq '.[]|select(.user.login|test("copilot"))|"\(.id) \(.commit_id)"'
+```
+
+The SHAs must match. That one check is worth keeping by hand precisely because the tool
+cannot yet make it.
 
 ## Suppressed comments are the ones you will miss
 
@@ -67,9 +81,12 @@ body**. They are not review threads and not review comments, so they appear in n
 and no `pulls/N/comments` result. A thread audit reports clean while they sit unread.
 
 ```bash
-gh api repos/<owner>/<repo>/pulls/<n>/reviews \
+gh api repos/<owner>/<repo>/pulls/<n>/reviews --paginate \
   --jq '.[] | select(.body|test("Suppressed")) | .body'
 ```
+
+`--paginate` is not optional. Without it this reads only the first 30 reviews, and the
+findings most likely to be forgotten are the oldest ones.
 
 Four of the five findings missed here were of this kind or arrived post-merge. Once a pull
 request is merged, its unaddressed comments vanish from every normal surface.

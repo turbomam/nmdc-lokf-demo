@@ -64,10 +64,16 @@ ready pr:
     fi
     if [ -n "$gate" ]; then
       "$gate" turbomam/nmdc-lokf-demo {{pr}}
+      echo "" >&2
+      echo "NOTE: a green result here is not a proof. pr-ready.sh compares review" >&2
+      echo "timestamps, not the reviewed commit_id, so it can accept a review of the" >&2
+      echo "previous head. See https://github.com/turbomam/bin/issues/134 and the" >&2
+      echo "by-hand SHA check in CONTRIBUTING.md." >&2
     else
       echo "pr-ready.sh is not installed, so THIS GATE DID NOT RUN. It has not passed." >&2
       echo "" >&2
-      echo "Install it. See CONTRIBUTING.md, 'If you do not have pr-ready.sh'." >&2
+      echo "It lives in turbomam/bin. Put it on PATH or at ~/bin/pr-ready.sh." >&2
+      echo "See CONTRIBUTING.md, 'If you do not have pr-ready.sh'." >&2
       echo "There is deliberately no hand-written substitute: the one that used to" >&2
       echo "live there was wrong in five different ways before it was removed." >&2
       exit 1
