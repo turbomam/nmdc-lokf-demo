@@ -1,12 +1,13 @@
-# Who produced each resource, and what was it derived from?
-# The database name gives you the host tenant. It does not give you the producer.
-# This query reads the producer off the graph instead.
+# The two axes, side by side.
+# Host tenant is carried by the name, so it can be read off the string.
+# Producer cannot be, so it is read off the graph.
 PREFIX schema: <http://schema.org/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
-SELECT ?name ?producer ?derivedFrom WHERE {
+SELECT ?name ?hostTenant ?producer ?derivedFrom WHERE {
   ?d a schema:Dataset ;
      schema:name ?name ;
      schema:keywords ?producer .
+  BIND(STRBEFORE(?name, ".") AS ?hostTenant)
   OPTIONAL { ?d prov:wasDerivedFrom ?derivedFrom }
 }
-ORDER BY ?name
+ORDER BY ?hostTenant ?name

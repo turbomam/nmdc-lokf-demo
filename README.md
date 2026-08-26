@@ -1,7 +1,7 @@
 # NMDC LOKF demo
 
 Published site: https://turbomam.github.io/nmdc-lokf-demo/ (concept pages, plus an
-interactive graph at https://turbomam.github.io/nmdc-lokf-demo/graph )
+interactive graph at https://turbomam.github.io/nmdc-lokf-demo/graph)
 
 An exercise, not an NMDC product. Nothing here is authoritative about NMDC data, and
 anything operational should be checked against the live catalog rather than this page.
@@ -35,12 +35,17 @@ producer goes in the graph:
 ```
 $ lokf query knowledge "$(cat queries/producer-and-host.rq)"
 
-name                  producer               derivedFrom
-kbase.nmdc_arkin      produced-by-arkin-lab  .../datasets/nmdc-metadata
-kbase.nmdc_neon       produced-by-neon       None
-nmdc.metadata         produced-by-nmdc       None
-nmdc.ncbi_biosamples  produced-by-ncbi       None
+name                  hostTenant  producer               derivedFrom
+kbase.nmdc_arkin      kbase       produced-by-arkin-lab  .../datasets/nmdc-metadata
+kbase.nmdc_neon       kbase       produced-by-neon       None
+nmdc.metadata         nmdc        produced-by-nmdc       None
+nmdc.ncbi_biosamples  nmdc        produced-by-ncbi       None
 ```
+
+Read down the two middle columns. The `kbase` tenant hosts data from two different
+producers, and the `nmdc` tenant hosts data produced by NCBI as well as by NMDC. The host
+is recoverable from the name, so the query derives it with `STRBEFORE`. The producer is
+not, so it comes off the graph.
 
 The tenant boundaries are deliberate: NMDC-derived products sit in the `kbase` tenant so
 the `nmdc` tenant stays a clean surface the NMDC team curates. That is what makes the
