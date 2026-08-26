@@ -34,9 +34,9 @@ tables:
 ttl:
     uvx --from lokf lokf convert knowledge --format ttl -o knowledge.ttl
 
-# Read-only: what CI checks, without touching the working tree
-#   validates the bundle, then diffs knowledge.ttl against a temp regeneration.
-#   `just ttl` is the command that actually rewrites it.
+# Validates the bundle, then diffs knowledge.ttl against a temp regeneration.
+# `just ttl` is the command that actually rewrites it.
+# What CI checks, read-only: never touches the working tree
 check:
     #!/usr/bin/env bash
     set -euo pipefail

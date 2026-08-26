@@ -8,9 +8,17 @@ Small repo, short rules. The only one that has actually been violated here is th
 nothing.** Not when the checks are green, and not when you believe the findings are addressed.
 
 Those are different things, and the difference cost this repository five real findings on
-2026-08-26. Three pull requests were merged within 95 seconds of a review that had not posted
-yet, and one of the findings was a design flaw in the guard whose whole job is catching
-mistakes. Two Copilot jobs were visibly `in_progress` at the moment of the merges.
+2026-08-26, through two distinct failures.
+
+**Merged before the review existed.** Pull request 16 was merged 95 seconds before its review
+posted, and 17 by 36 seconds. Two Copilot jobs were visibly `in_progress` at the time.
+
+**Merged past a review that did exist.** Pull request 7's review posted 157 seconds *before*
+the merge and nobody read it. No timing discipline would have caught that one; only looking
+would have.
+
+The second is the worse habit, and the easier one to excuse. One of the five findings was a
+design flaw in the guard whose whole job is catching mistakes.
 
 The check is mechanical:
 
