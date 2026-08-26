@@ -8,24 +8,49 @@ Every figure below was counted or run on 2026-08-26 against LOKF 0.5.0. Nothing 
 ## One schema, six artifacts
 
 `lokf.yaml` is the only hand-edited definition of the format: **1,624 lines, 29 classes, 76
-slots, 5 enums, 3 subsets**. Everything else is generated from it by stock LinkML generators.
+slots, 5 enums, 3 subsets**. Six artifacts are derived from it.
 
 **None of these files are in this repository.** They live in the upstream LOKF project,
-https://github.com/nicholsn/lokf, and ship inside the installed `lokf` package. This bundle
-consumes the generated JSON-LD context rather than regenerating it. The counts below were taken
-from that repository at version 0.5.0; to check them, clone it and count.
+https://github.com/nicholsn/lokf. The counts below were taken from that repository at version
+0.5.0; to check them, clone it and count.
 
-| Generated artifact | Lines | Made by | What it buys |
-|---|---:|---|---|
-| `lokf.context.jsonld` | 442 | `gen-jsonld-context` | Makes the frontmatter valid JSON-LD, so markdown expands to RDF with no separate file |
-| `lokf.schema.json` | 5,502 | `gen-json-schema` | Validates frontmatter, closed-world, which is what rejects the mistake below |
-| `lokf.shacl.ttl` | 3,271 | `gen-shacl` | Validates the RDF graph rather than the source documents |
-| `lokf.owl.ttl` | 1,994 | `gen-owl` | Reasoning and alignment against schema.org, DCAT and PROV-O |
-| `lokf.sql` | 3,425 | SQL DDL generator | One table per type, foreign keys for typed relations |
-| `src/lokf/datamodel.py` | 2,014 | `gen-python` | Typed Python bindings, `from lokf.datamodel import Dataset` |
+| Derived artifact | Lines | Generator | Post-processed by `build.py`? | In the installed wheel? |
+|---|---:|---|---|---|
+| `lokf.context.jsonld` | 442 | `gen-jsonld-context` | **Yes, substantially** | Yes |
+| `lokf.schema.json` | 5,502 | `gen-json-schema` | No | No, repo only |
+| `lokf.shacl.ttl` | 3,271 | `gen-shacl` | No | No, repo only |
+| `lokf.owl.ttl` | 1,994 | `gen-owl` | Yes, axioms appended | No, repo only |
+| `lokf.sql` | 3,425 | `gen-sqltables` | No | No, repo only |
+| `src/lokf/datamodel.py` | 2,014 | `gen-python` | Yes, one keyword fix | Yes |
 
-**1,624 lines in, 16,648 lines out.** None of the 16,648 has to be written, reviewed, or kept in
-sync by hand. That is the whole argument, and it is why the format can be changed in one place.
+**1,624 lines in, 16,648 lines out.** None of the 16,648 has to be written by hand, and that is
+the argument. But two qualifications matter, and both are visible in `src/lokf/build.py`.
+
+### The generators are not the whole story
+
+Three of the six are post-processed after generation:
+
+- **The JSON-LD context is rewritten**, and this is load-bearing. `build.py` adds the
+  `type` → `@type` and `id` → `@id` keyword aliases, maps nine `ParameterType` values to their
+  classes, and removes `@id` coercion from `author` so OKF actor strings stay literals. The
+  first of those is what makes unmodified OKF frontmatter valid JSON-LD at all, which is LOKF's
+  headline feature. A stock `gen-jsonld-context` run does not produce it.
+- **OWL axioms are appended**, declaring the Parameter-kind classes and aligning
+  `lokf:Verification` with `prov:Activity`, because LinkML materialises enum meanings as IRIs
+  without emitting class axioms for them.
+- **The Python bindings are patched** so a slot named `from` becomes `from_`; `gen-python`
+  emits it verbatim, which is a `SyntaxError`.
+
+So the honest claim is that LinkML does the bulk and the remainder is small, deliberate, and
+documented in the build script. Adopting a LinkML schema alone would not reproduce these exact
+files.
+
+### Only three of the seven ship in the package
+
+`build.py` copies `lokf.yaml` and `lokf.context.jsonld` into `src/lokf/data`, and generates
+`src/lokf/datamodel.py`. The JSON Schema, SHACL shapes, OWL ontology and SQL DDL stay in the
+upstream repository. `lokf validate` reaches the JSON Schema by calling `linkml-validate`
+against the packaged `lokf.yaml`, not by shipping the generated schema.
 
 ## The schema is enforced, not decorative
 
@@ -44,7 +69,7 @@ on every run and every machine. Everything after it is the schema's own message.
 adding that key to any concept and running:
 
 ```bash
-uvx --from 'lokf[build]' lokf validate knowledge
+uvx --from 'lokf[build]==0.5.0' lokf validate knowledge
 ```
 
 This is a real error caught by a schema rather than by review, which is worth more than the
@@ -56,7 +81,7 @@ assertion that a schema exists.
 relational form, one CSV per type plus an edge table:
 
 ```bash
-uvx --from 'lokf[tables]' lokf tables knowledge --format csv --output build/tables
+uvx --from 'lokf[tables]==0.5.0' lokf tables knowledge --format csv --output build/tables
 # -> Dataset.csv  Explanation.csv  GlossaryTerm.csv  relations.csv
 ```
 
@@ -68,14 +93,23 @@ source,predicate,target
 .../datasets/kbase-nmdc-arkin,dependsOn,.../glossary/berdl-tenant
 ```
 
-Both projections come from the same 76 slot definitions. Nothing declares the tables separately,
-and nothing can drift between the two, because there is only one source.
+Both projections trace to the same 76 slot definitions, and neither requires a separate table
+declaration. That is the benefit; "cannot drift" would be too strong. RDF conversion reads the
+**committed** JSON-LD context, while `lokf tables` reads relation slots from the schema, so a
+schema change without a rebuilt context would make the two disagree.
+
+Note also what generates what. LinkML's `gen-sqltables` produces the relational **schema**
+(`lokf.sql`). Projecting the **instances** to CSV or Parquet is LOKF's own code,
+`src/lokf/tables.py`, 200 lines with no LinkML dependency. Adopting a LinkML schema gives you
+the DDL, not `lokf tables`.
 
 ## What this would mean for a schema you already maintain
 
 The pattern generalises past LOKF. If a body of documentation already has structure in its
-frontmatter, a LinkML schema for that frontmatter gives validation, a JSON-LD context, SHACL,
-OWL and a relational projection without writing any of them.
+frontmatter, a LinkML schema for that frontmatter gives validation, a JSON-LD context, SHACL
+shapes, an OWL ontology and relational DDL without writing any of them. It does not give you
+LOKF's CLI: the markdown parsing, the instance-to-table projection and the SPARQL server are
+LOKF's own code.
 
 `docs/landscape.md` works through a concrete case: the BERIL Research Observatory's atlas has
 141 pages sharing 13 frontmatter keys across 16 types, and its structure is enforced by 1,466
