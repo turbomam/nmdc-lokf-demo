@@ -90,6 +90,13 @@ validation, one type of sixteen, expressed as a LinkML schema. What translated c
 defect it found, and the semantic difference that makes the translation a modelling decision
 rather than a port.
 
+## What this taught us
+
+[docs/lessons.md](docs/lessons.md): four things learned by getting them wrong first, written for
+someone about to build their own bundle. Dead subject IRIs that nothing checks, the silent
+half-migration when `--base-iri` is skipped, projection not enforcing what validation enforces,
+and why the frontmatter mapping is the real work.
+
 ## What it's built on, and what else exists
 
 [docs/landscape.md](docs/landscape.md) covers the stack (Python required, Astro optional) and how this compares
@@ -118,10 +125,7 @@ the source.
 
 ## Notes for anyone doing the same thing
 
-The source documents did not use OKF frontmatter. They used `name` / `description` /
-`metadata` / `related`, so converting them was a mapping exercise rather than a
-relabelling. `metadata.provenance` had to be split: the producer became a tag plus a
-`derivedFrom` link, and the tenant became a `dependsOn` link to a glossary term, because
-tenant and producer are different things and one field cannot carry both.
+Moved to [docs/lessons.md](docs/lessons.md), which covers the frontmatter mapping this
+section used to summarise, plus three other things worth knowing before starting.
 
 Built with LOKF 0.5.0.
