@@ -2,7 +2,7 @@
 type: Dataset
 id: https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-ncbi-biosamples
 title: nmdc.ncbi_biosamples
-description: A copy of NCBI BioSample records, pulled from NCBI and hosted under the nmdc tenant so NMDC users can reach them alongside NMDC records.
+description: A copy of NCBI BioSample records, pulled from NCBI and hosted under the nmdc tenant.
 timestamp: 2026-08-26T00:00:00Z
 status: draft
 dependsOn: [ https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant ]

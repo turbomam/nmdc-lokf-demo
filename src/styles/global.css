@@ -212,3 +212,13 @@ article :is(h2, h3) { scroll-margin-top: 5rem; }
   body { font-size: 17px; }
   .site-header { justify-content: center; }
 }
+
+/* Dated provenance disclaimer on the homepage. Kept visually distinct so a reader
+   cannot mistake a snapshot for a current description of the lakehouse. */
+.notice {
+  border-left: 3px solid currentColor;
+  padding: 0.6rem 0 0.6rem 0.9rem;
+  margin: 1rem 0;
+  opacity: 0.85;
+  font-size: 0.95rem;
+}

@@ -60,7 +60,7 @@ BERIL has four. This demo is smaller than three of them and overlaps none of the
 | **OpenViking** | Retrieval. Embeds and searches text. Lives in `knowledge/openviking/` and `observatory_context/openviking_client.py`. | Not applicable | Not applicable; it indexes content |
 | **The atlas** | Curated research knowledge base | **141 pages, 16 types** | **Python** (`ui/app/atlas_lint.py`, 645 lines) |
 | **The compendium** | Statement-card KG synthesis wiki | **48,865 lines, 372 files** | **LinkML**, and **not released** |
-| **Project `knowledge/` bundles** | Per-project context documents | 15 files in `nmdc_context_audit` | Nowhere |
+| **Project `knowledge/` bundles** | Per-project context documents | 15 files in `projects/nmdc_context_audit/knowledge/` | Nowhere |
 
 ### The atlas
 
