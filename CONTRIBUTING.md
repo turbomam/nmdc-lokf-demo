@@ -1,11 +1,15 @@
 # Contributing
 
-Small repo, short rules. The only one that has actually been violated here is the last one.
+Small repo, short rules. The one that has actually been violated here, five times in a
+single day, is the merge gate immediately below.
 
 ## Before you merge
 
-**A pull request is ready when a Copilot review that examined the current code reports
-nothing.** Not when the checks are green, and not when you believe the findings are addressed.
+**A pull request is ready when all six conditions below hold.** Not when the checks are green,
+not when the newest review happens to report nothing, and not when you believe the findings are
+addressed. A clean current review is necessary and not sufficient: it says nothing about a
+suppressed finding on a superseded review, an unanswered thread, or a check still running. All
+three of those have blocked a pull request here while the newest review was clean.
 
 Those are different things, and the difference cost this repository five real findings on
 2026-08-26, through two distinct failures.
@@ -37,6 +41,40 @@ It exits nonzero unless all of these hold:
 - no superseded review has unaddressed suppressed comments
 - every review thread has a reply
 - no check is failing or still running
+
+### The same gate by hand
+
+If `pr-ready.sh` is not installed, these are the six conditions in full. Nothing shorter is
+the gate.
+
+```bash
+R=turbomam/nmdc-lokf-demo; N=<pr-number>
+
+# 1. A review examined THIS head. Compare SHAs; timestamps cannot prove it,
+#    because a commit is dated when created, not when pushed.
+gh api repos/$R/pulls/$N --jq .head.sha
+gh api repos/$R/pulls/$N/reviews \
+  --jq '.[]|select(.user.login|test("copilot"))|"\(.id) \(.commit_id) \(.submitted_at)"'
+
+# 2. That review left no inline findings.
+gh api repos/$R/pulls/$N/comments --paginate \
+  --jq '.[]|select(.user.login=="Copilot")|"\(.id) \(.path) \(.body)"'
+
+# 3 and 4. No review, current or superseded, has unaddressed SUPPRESSED findings.
+#    They live in the review BODY and appear in no thread query.
+gh api repos/$R/pulls/$N/reviews --paginate \
+  --jq '.[]|select(.body|test("Suppressed"))|"\(.id)\n\(.body)"'
+#    Each such review id must be named in a pull request comment saying how it was handled.
+gh api repos/$R/issues/$N/comments --paginate --jq '.[].body' | grep pullrequestreview-
+
+# 5. Every inline thread has a reply from you.
+gh api repos/$R/pulls/$N/comments --paginate --jq '
+  [.[]|select(.in_reply_to_id==null)|.id] - [.[]|select(.in_reply_to_id!=null)|.in_reply_to_id]'
+#    An empty array means none are unanswered.
+
+# 6. No check failing or still running.
+gh pr checks $N --repo $R
+```
 
 ## Suppressed comments are the ones you will miss
 
