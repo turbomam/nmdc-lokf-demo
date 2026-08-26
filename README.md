@@ -85,9 +85,10 @@ code starts.
 
 ## For BERIL colleagues
 
-[docs/atlas-as-linkml.md](docs/atlas-as-linkml.md): the atlas's 1,466 lines of Python validation
-expressed as a LinkML schema for one type, what translated cleanly, one real defect it found,
-and the semantic difference that makes the translation a modelling decision rather than a port.
+[docs/atlas-as-linkml.md](docs/atlas-as-linkml.md): a slice of the atlas's 1,466 lines of Python
+validation, one type of sixteen, expressed as a LinkML schema. What translated cleanly, one real
+defect it found, and the semantic difference that makes the translation a modelling decision
+rather than a port.
 
 ## What it's built on, and what else exists
 

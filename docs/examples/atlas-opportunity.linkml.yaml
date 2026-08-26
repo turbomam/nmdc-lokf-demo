@@ -2,9 +2,11 @@ id: https://example.org/beril/atlas
 name: beril_atlas
 title: BERIL atlas frontmatter (partial, opportunity type only)
 description: >-
-  A LinkML expression of the rules ui/app/atlas_lint.py enforces on atlas pages,
-  written to test whether they translate cleanly. Covers the shared required
-  fields and the opportunity type. Not a proposal, an experiment.
+  A LinkML expression of the rules enforced by ui/app/atlas_lint.py in the BERIL
+  Research Observatory repository (github.com/kbaseincubator/BERIL-research-observatory),
+  not in this one. Written to test whether they translate cleanly. Covers the
+  shared required fields and the opportunity type, one of sixteen. Not a
+  proposal, an experiment.
 prefixes:
   linkml: https://w3id.org/linkml/
   atlas: https://example.org/beril/atlas/
@@ -72,6 +74,7 @@ classes:
 
   Opportunity:
     is_a: AtlasPage
+    tree_root: true
     description: >-
       The 10 fields in atlas_lint.OPPORTUNITY_REQUIRED_FIELDS, all required, plus
       `evidence`. `evidence` is required for this type too, but by a different

@@ -13,12 +13,14 @@ That is a typed vocabulary with typed relations, provenance of the assertion its
 (`generated_by`), a confidence rating and a review date. It is a more developed knowledge model
 than the six-concept bundle in this repository.
 
-Its rules are enforced, as imperative Python. `ui/app/atlas_lint.py` holds
+Its rules are enforced, as imperative Python. **These files are in the BERIL repository, not
+this one.** [`ui/app/atlas_lint.py`](https://github.com/kbaseincubator/BERIL-research-observatory/blob/main/ui/app/atlas_lint.py) holds
 `REQUIRED_ATLAS_FIELDS`, `ATLAS_PAGE_TYPES`, `EVIDENCE_REQUIRED_TYPES`,
 `DERIVED_PRODUCT_REQUIRED_FIELDS`, `CONFLICT_REQUIRED_FIELDS`, `OPPORTUNITY_REQUIRED_FIELDS`,
 enums such as `{"unresolved", "partially_resolved", "resolved", "deprecated"}`, and referential
-integrity checks against a collections snapshot. With `atlas_graph.py` (498 lines) and
-`atlas_inventory.py` (323) that is 1,466 lines.
+integrity checks against a collections snapshot. With `ui/app/atlas_graph.py` (498 lines) and
+`ui/app/atlas_inventory.py` (323) that is 1,466 lines, of which this experiment expresses the
+rules for one type of sixteen.
 
 ## So we tried translating a slice of it
 
