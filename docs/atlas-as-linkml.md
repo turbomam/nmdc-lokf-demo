@@ -66,8 +66,10 @@ it.
 This is the caveat worth knowing before anyone tries it, and it took validating real pages to
 find.
 
-`atlas_lint` reads "required" as **the key is present**. LinkML reads `required: true` on a
-multivalued slot as **at least one item**. `cf-formulation-reuse.md` has:
+`atlas_lint` reads "required" as **the key is present**, and so does the LinkML metamodel: its
+own description of `required` is "true means that the slot must be present in instances of the
+class definition". But `linkml-validate` rejects an empty list anyway.
+`cf-formulation-reuse.md` has:
 
 ```yaml
 linked_conflicts: []
@@ -81,9 +83,33 @@ rejects:
 ```
 
 Isolated on a minimal document to be sure it is the empty list and not something else about the
-page. Neither reading is wrong; they are different rules wearing the same word. A translation
-that copies `REQUIRED_*` sets into `required: true` therefore **tightens** the rules without
-anyone deciding to, and the atlas has at least one page that would newly fail.
+page, and then reduced further, at which point it turned out not to be a difference of
+interpretation at all. **Two LinkML artifacts from the same schema disagree about the same
+document.** The JSON Schema that `gen-json-schema` produces has no `minItems`, and validating
+against it with plain `jsonschema` accepts the empty list. `linkml-validate`, given the same
+schema and the same document, rejects it:
+
+```yaml
+classes:
+  Thing:
+    tree_root: true
+    attributes:
+      tags: {multivalued: true, required: true}
+```
+
+```
+{"tags": []}
+  gen-json-schema output + jsonschema  -> VALID
+  linkml-validate                      -> [ERROR] 'tags' is a required property in /
+```
+
+On linkml 1.11.1. Reported upstream; see the repository's issue tracker.
+
+The practical consequence for a translation is unchanged and still the thing to plan for: copying
+`REQUIRED_*` sets into `required: true` **tightens** the rules as `linkml-validate` applies them,
+without anyone deciding to, and the atlas has at least one page that would newly fail. But the
+cause is a tooling inconsistency rather than two defensible readings of the word, which is worth
+knowing before anyone designs around it.
 
 Anyone doing this for real has to decide, per field, whether an empty list is acceptable. That
 is a modelling conversation the current linter never had to have, and it is the actual cost of

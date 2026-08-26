@@ -75,7 +75,9 @@ was the whole finding the source documents existed to record.
 That splitting is the cost, and it is where the value is. The syntax took minutes; deciding
 that hosting and production are two axes took reading the source material properly.
 
-A corollary seen elsewhere: `required` does not mean the same thing everywhere. A presence
-check and a schema's `required: true` on a multivalued slot differ on an empty list, so copying
-one to the other silently tightens the rules. See
-[atlas-as-linkml.md](atlas-as-linkml.md) for a worked case.
+A corollary seen elsewhere: **check what a rule actually does before copying it.** Porting a
+presence check to `required: true` on a multivalued slot silently tightens the rules, because
+`linkml-validate` rejects an empty list. Not, as it turns out, because the two words mean
+different things: the LinkML metamodel defines `required` as presence too, and the generated
+JSON Schema accepts the empty list. `linkml-validate` and that JSON Schema disagree about the
+same document. See [atlas-as-linkml.md](atlas-as-linkml.md) for the reduced case.
