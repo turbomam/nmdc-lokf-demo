@@ -37,8 +37,10 @@ is upstream's example bundle and it does not exist in this repo, so an agent fol
 here would run commands against a missing directory.
 
 Their content is otherwise unobjectionable: no destructive commands, no credential handling,
-no network calls beyond the `lokf` CLI itself, and the only mutating operation is
-`lokf propose --apply`, which rewrites frontmatter in the bundle after a review step.
+and no network calls beyond the `lokf` CLI itself. Two operations write to disk.
+`scaffold-knowledge-base` runs `lokf new`, which creates a new repository directory, and
+`enrich-relations` runs `lokf propose --apply`, which is the only one that edits an existing
+bundle in place, and only after a review step.
 
 Run `lokf skills install` to get them, or read them in the `lokf` package under
 `src/lokf/skills/`.
