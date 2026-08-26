@@ -25,3 +25,12 @@ rdf:
 # Project the bundle to linked tables (CSV under build/tables)
 tables:
     uvx --from 'lokf[tables]' lokf tables knowledge --format csv --output build/tables
+
+# Regenerate the committed RDF (CI fails if this leaves a diff)
+ttl:
+    uvx --from lokf lokf convert knowledge --format ttl -o knowledge.ttl
+
+# What CI checks: bundle validates and knowledge.ttl is current
+check: ttl
+    uvx --from 'lokf[build]' lokf validate knowledge
+    git diff --exit-code knowledge.ttl

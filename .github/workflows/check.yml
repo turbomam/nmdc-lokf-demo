@@ -1,0 +1,33 @@
+name: check
+
+# Two things that can silently rot:
+#   1. the bundle stops validating against the LOKF schema
+#   2. the committed knowledge.ttl drifts from the concepts it was generated from
+# Both are cheap to check and neither is caught by the pages build.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Validate the bundle against the LOKF schema
+        run: uvx --from 'lokf[build]' lokf validate knowledge
+
+      - name: knowledge.ttl matches the concepts
+        run: |
+          uvx --from lokf lokf convert knowledge --format ttl -o /tmp/regenerated.ttl
+          if ! diff -u knowledge.ttl /tmp/regenerated.ttl; then
+            echo
+            echo "::error file=knowledge.ttl::knowledge.ttl is out of date."
+            echo "Regenerate it with:"
+            echo "  uvx --from lokf lokf convert knowledge --format ttl -o knowledge.ttl"
+            exit 1
+          fi
+          echo "knowledge.ttl is current."
