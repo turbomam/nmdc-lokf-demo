@@ -10,7 +10,7 @@
     schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "LBNL Arkin Lab enriched derivative of NMDC omics, carrying embeddings, traits, and unified annotations." ;
+    schema1:description "Omics records originating with NMDC, which the Arkin Lab at LBNL has extended with vector embeddings, organism trait assignments, and a reconciled annotation layer." ;
     schema1:keywords "derived" ;
     schema1:name "kbase.nmdc_arkin" ;
     schema1:text """# Provenance
@@ -22,7 +22,7 @@ NMDC-derived, hosted in the kbase tenant. Currency 2026-05-27 at audit time.""" 
     schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "NEON (National Ecological Observatory Network) data processed with NMDC-style workflows. Not NMDC data despite the name." ;
+    schema1:description "Observations collected by the NSF National Ecological Observatory Network, processed through workflows of the kind NMDC uses. The producer is NEON, not NMDC." ;
     schema1:keywords "namesake-collision" ;
     schema1:name "kbase.nmdc_neon" ;
     schema1:text """# Provenance
@@ -33,7 +33,7 @@ NSF NEON program. The nmdc_ prefix refers to the workflow style, not the produce
     schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "A harvested NCBI BioSample mirror re-hosted under the nmdc tenant. Not NMDC-generated." ;
+    schema1:description "A copy of NCBI BioSample records, pulled from NCBI and stored under the nmdc tenant. NMDC did not create these records." ;
     schema1:keywords "harvested" ;
     schema1:name "nmdc.ncbi_biosamples" ;
     schema1:text """# Provenance
@@ -44,7 +44,7 @@ Authority is ncbi.nlm.nih.gov/biosample. Sits in the nmdc tenant, which is the t
     schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "Canonical NMDC study, biosample, and omics metadata." ;
+    schema1:description "Study, biosample, and omics records that NMDC itself produces and treats as authoritative." ;
     schema1:keywords "canonical" ;
     schema1:name "nmdc.metadata" ;
     schema1:text """# Provenance
@@ -53,7 +53,7 @@ Produced by NMDC. This is the canonical resource.""" .
 <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/nmdc-label-is-overloaded> a lokf:Explanation ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "One \"NMDC\" label spans three BERDL tenants and six provenance classes, so the name alone does not tell you who produced the data." ;
+    schema1:description "Databases whose names contain nmdc sit in three different tenants and were produced by six different groups, so matching on the name tells you nothing about who made the data." ;
     schema1:genre "explanation" ;
     schema1:keywords "berdl",
         "nmdc",

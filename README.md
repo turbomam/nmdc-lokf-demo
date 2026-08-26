@@ -23,12 +23,20 @@ nmdc.ncbi_biosamples  harvested           None
 kbase.nmdc_neon       namesake-collision  None
 ```
 
-`nmdc.ncbi_biosamples` is a harvested NCBI mirror re-hosted under the nmdc tenant.
-`kbase.nmdc_neon` is NEON, a different program entirely. Only `nmdc.metadata` is
-canonical NMDC.
+`nmdc.ncbi_biosamples` holds records copied from NCBI, stored under the nmdc tenant.
+`kbase.nmdc_neon` holds NSF NEON observations. Of the four, only `nmdc.metadata` is
+produced by NMDC.
 
-The underlying findings come from the `nmdc_context_audit` project in BERIL, measured
-2026-07-10. This bundle re-expresses six of them in LOKF; it does not re-measure them.
+## Source and license
+
+The findings are not mine. They come from the `nmdc_context_audit` project in the
+BERIL Research Observatory, measured 2026-07-10:
+https://github.com/kbaseincubator/BERIL-research-observatory/tree/main/projects/nmdc_context_audit/knowledge
+
+That repository is public and licensed AGPL-3.0, and this bundle is a derivative of
+those documents, so it carries the same license. See `LICENSE`. This bundle
+re-expresses six of the findings in LOKF; it does not re-measure them, and it is not
+authoritative about NMDC data. For anything that matters, read the source.
 
 ## What LOKF is doing here
 
