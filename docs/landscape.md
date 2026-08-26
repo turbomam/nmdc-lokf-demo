@@ -36,11 +36,15 @@ package, and they reference `examples/acme-knowledge` thirteen times across thre
 is upstream's example bundle and it does not exist in this repo, so an agent following them
 here would run commands against a missing directory.
 
-Their content is otherwise unobjectionable: no destructive commands, no credential handling,
-and no network calls beyond the `lokf` CLI itself. Two operations write to disk.
-`scaffold-knowledge-base` runs `lokf new`, which creates a new repository directory, and
-`enrich-relations` runs `lokf propose --apply`, which is the only one that edits an existing
-bundle in place, and only after a review step.
+Their content is otherwise unobjectionable, stated precisely:
+
+- **No destructive commands and no credential handling.**
+- **Network calls: three, all to localhost.** `publish-graph` runs `curl` against
+  `http://127.0.0.1:8000/sparql` and `http://127.0.0.1:8000/graph.json`, which is the server
+  `lokf serve` starts on the same machine. No external host appears in any of the six.
+- **Writes to disk: two.** `scaffold-knowledge-base` runs `lokf new`, which creates a new
+  repository directory. `enrich-relations` runs `lokf propose --apply`, the only operation
+  that edits an existing bundle in place, and only after a review step.
 
 Run `lokf skills install` to get them, or read them in the `lokf` package under
 `src/lokf/skills/`.
