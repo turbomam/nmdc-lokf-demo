@@ -36,16 +36,16 @@ package, and they reference `examples/acme-knowledge` thirteen times across thre
 is upstream's example bundle and it does not exist in this repo, so an agent following them
 here would run commands against a missing directory.
 
-They are agent instructions, so what they do depends on the agent following them. Between
-them they direct an agent to author and edit concept and index files, run the `lokf` CLI
-including `propose --apply`, which rewrites frontmatter in place, scaffold a new repository
-with `lokf new`, remove the starter examples it creates, run `just setup`, which is
-`npm install` and contacts the configured package registry, and query a local `lokf serve`
-endpoint over HTTP at `127.0.0.1:8000`.
+They are agent instructions, so their effects are whatever the agent following them does.
+Among other things they direct an agent to author and edit concept and index files, run
+`lokf propose --apply`, which rewrites frontmatter in place, scaffold a new repository with
+`lokf new` and delete the starter examples it creates, run `just setup`, and push to GitHub.
+Several of those commands reach the network on their own account: `uvx` fetches from a Python
+package index, `npm ci` from a JavaScript one, and `git push` from a remote.
 
-Nothing in them handles credentials or contacts a host the reader would not expect from that
-list. That is a description, not a clearance: an instruction file's effects are open-ended by
-nature, and anyone about to run them should read them rather than take a summary's word for it.
+That list is illustrative, not exhaustive, and this section makes no claim about what the
+skills do or do not touch overall. Delegated instructions cannot be summarised safely, because
+each command they invoke has its own open-ended behaviour. Read them before running them.
 
 Run `lokf skills install` to get them, or read them in the `lokf` package under
 `src/lokf/skills/`.
