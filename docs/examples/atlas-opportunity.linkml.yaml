@@ -120,6 +120,9 @@ slots:
   linked_products: {required: true, multivalued: true}
   target_outputs: {required: true, multivalued: true}
   review_routes: {required: true, multivalued: true}
-  evidence: {multivalued: true, range: Evidence, inlined_as_list: true}
+  # `inlined: true` is redundant here and set only to state intent: Evidence has
+  # no identifier slot, so it cannot be referenced and LinkML inlines it anyway.
+  # Verified: without it, a malformed evidence entry is still rejected.
+  evidence: {multivalued: true, range: Evidence, inlined: true, inlined_as_list: true}
   source: {required: true}
   support: {required: true}
