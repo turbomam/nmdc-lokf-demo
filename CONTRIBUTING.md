@@ -42,51 +42,23 @@ It exits nonzero unless all of these hold:
 - every review thread has a reply
 - no check is failing or still running
 
-### The same gate by hand
+### If you do not have `pr-ready.sh`
 
-If `pr-ready.sh` is not installed, these are the six conditions in full. Nothing shorter is
-the gate.
+Then the gate did not run, and you should not say it passed.
 
-Two traps make a hand-rolled version report false clean, so the commands below are written
-around both. `--paginate` runs a `--jq` filter **once per page**, so any expression that
-compares two sets across the whole result is wrong unless you slurp first and pipe to `jq`.
-And any endpoint that can exceed 30 items needs `--paginate` at all.
+There was a hand-written version of the six checks here. It was removed after five review
+rounds found five different ways it was wrong: a `--jq` filter evaluated once per page so
+answered threads read as unanswered, a missing `--paginate` that would drop the newest review
+past 30 rounds, a reply filter accepting any account, an incomplete list presented as the whole
+check, and a headline rule weaker than the six conditions under it.
 
-```bash
-R=turbomam/nmdc-lokf-demo; N=<pr-number>; ME=$(gh api user --jq .login)
+Each of those was a real bug in a second implementation of a tool that already exists. Nothing
+exercised the copy, so nothing caught them until a reviewer did, one per round. Install the
+helper instead.
 
-# 1. A review examined THIS head. Compare SHAs; timestamps cannot prove it,
-#    because a commit is dated when created, not when pushed.
-gh api repos/$R/pulls/$N --jq .head.sha
-gh api repos/$R/pulls/$N/reviews --paginate \
-  --jq '.[]|select(.user.login|test("copilot"))|"\(.id) \(.commit_id) \(.submitted_at)"'
-
-# 2. That review left no inline findings. Note the login on review COMMENTS is
-#    "Copilot"; it is "copilot-pull-request-reviewer[bot]" on review objects.
-#    pull_request_review_id ties each finding to the review it came from, so
-#    superseded rounds are not mistaken for the current one.
-gh api repos/$R/pulls/$N/comments --paginate \
-  --jq '.[]|select(.user.login=="Copilot")|"\(.id) review=\(.pull_request_review_id) \(.path)"'
-
-# 3 and 4. No review, current or superseded, has unaddressed SUPPRESSED findings.
-#    They live in the review BODY and appear in no thread query.
-gh api repos/$R/pulls/$N/reviews --paginate \
-  --jq '.[]|select(.body|test("Suppressed"))|"\(.id)\n\(.body)"'
-#    Each such review id must be named in a pull request comment saying how it was handled.
-gh api repos/$R/issues/$N/comments --paginate --jq '.[].body' | grep pullrequestreview-
-
-# 5. Every inline thread has a reply FROM YOU. Slurp, or the set subtraction is
-#    evaluated per page and a root on one page with its reply on another reads
-#    as unanswered.
-gh api repos/$R/pulls/$N/comments --paginate --slurp \
-  | jq --arg me "$ME" 'add
-      | [.[]|select(.in_reply_to_id==null)|.id]
-        - [.[]|select(.in_reply_to_id!=null and .user.login==$me)|.in_reply_to_id]'
-#    An empty array means none are unanswered.
-
-# 6. No check failing or still running.
-gh pr checks $N --repo $R
-```
+Its own known flaw is worth knowing: it compares review timestamps rather than the reviewed
+`commit_id`, which cannot prove a review saw the head commit. Tracked at
+https://github.com/turbomam/bin/issues/134
 
 ## Suppressed comments are the ones you will miss
 

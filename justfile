@@ -67,10 +67,8 @@ ready pr:
     else
       echo "pr-ready.sh is not installed, so THIS GATE DID NOT RUN. It has not passed." >&2
       echo "" >&2
-      echo "Install it, or run the complete six-condition procedure in CONTRIBUTING.md," >&2
-      echo "section 'The same gate by hand'. It is a copy-pasteable block; nothing" >&2
-      echo "shorter is the gate. The condition easiest to get wrong is the first: a" >&2
-      echo "review counts only if its commit_id equals the head SHA, because a commit" >&2
-      echo "is dated when you commit it, not when you push it." >&2
+      echo "Install it. See CONTRIBUTING.md, 'If you do not have pr-ready.sh'." >&2
+      echo "There is deliberately no hand-written substitute: the one that used to" >&2
+      echo "live there was wrong in five different ways before it was removed." >&2
       exit 1
     fi
