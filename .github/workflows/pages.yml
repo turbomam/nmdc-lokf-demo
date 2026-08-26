@@ -2,8 +2,8 @@ name: pages
 
 # Builds the Astro site (which renders the knowledge/ bundle) and publishes it
 # to GitHub Pages. In the repo's Settings -> Pages, set Source to
-# "GitHub Actions". `npm install` (not ci) so the scaffold works before a
-# package-lock.json is committed; commit the lockfile for reproducible builds.
+# "GitHub Actions". `npm ci` installs exactly what package-lock.json pins, and
+# fails loudly if the lockfile and package.json disagree.
 on:
   push:
     branches: [main]
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - run: npm install
+      - run: npm ci
       - run: npm run build
       - uses: actions/upload-pages-artifact@v5
         with:

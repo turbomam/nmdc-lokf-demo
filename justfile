@@ -2,8 +2,12 @@
 default:
     @just --list
 
-# Install the site's dependencies (once; commit package-lock.json)
+# Install the site's dependencies exactly as pinned by package-lock.json
 setup:
+    npm ci
+
+# Update the lockfile deliberately (then commit it)
+setup-update:
     npm install
 
 # Live-preview the site (concept pages + the /graph browser)
