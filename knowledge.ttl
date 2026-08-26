@@ -5,9 +5,9 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<https://w3id.org/turbomam/nmdc-lokf-demo/datasets/kbase-nmdc-arkin> a schema1:Dataset ;
-    dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
-    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
+<https://turbomam.github.io/nmdc-lokf-demo/datasets/kbase-nmdc-arkin> a schema1:Dataset ;
+    dcterms:requires <https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant> ;
+    schema1:about <https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
     schema1:description "Omics records originating with NMDC, which the Arkin Lab at LBNL has extended with vector embeddings, organism trait assignments, and a reconciled annotation layer." ;
@@ -16,11 +16,11 @@
     schema1:text """# Provenance
 Producer: the Arkin Lab at LBNL, working from NMDC omics. Host tenant: `kbase`.
 Snapshot currency 2026-05-27 as recorded by the audit.""" ;
-    prov:wasDerivedFrom <https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-metadata> .
+    prov:wasDerivedFrom <https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-metadata> .
 
-<https://w3id.org/turbomam/nmdc-lokf-demo/datasets/kbase-nmdc-neon> a schema1:Dataset ;
-    dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
-    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
+<https://turbomam.github.io/nmdc-lokf-demo/datasets/kbase-nmdc-neon> a schema1:Dataset ;
+    dcterms:requires <https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant> ;
+    schema1:about <https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
     schema1:description "Observations collected by the NSF National Ecological Observatory Network, processed through workflows of the kind NMDC uses." ;
@@ -31,9 +31,9 @@ Producer: the NSF NEON program. Host tenant: `kbase`. The `nmdc_` element of the
 name refers to the processing style, which is a third thing again, distinct from both
 the host and the producer.""" .
 
-<https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-ncbi-biosamples> a schema1:Dataset ;
-    dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
-    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
+<https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-ncbi-biosamples> a schema1:Dataset ;
+    dcterms:requires <https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant> ;
+    schema1:about <https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
     schema1:description "A copy of NCBI BioSample records, pulled from NCBI and hosted under the nmdc tenant so NMDC users can reach them alongside NMDC records." ;
@@ -43,9 +43,9 @@ the host and the producer.""" .
 Producer: NCBI; the authority for these records is ncbi.nlm.nih.gov/biosample.
 Host tenant: `nmdc`. This is a case where the two axes differ.""" .
 
-<https://w3id.org/turbomam/nmdc-lokf-demo/datasets/nmdc-metadata> a schema1:Dataset ;
-    dcterms:requires <https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> ;
-    schema1:about <https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
+<https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-metadata> a schema1:Dataset ;
+    dcterms:requires <https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant> ;
+    schema1:about <https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
     schema1:description "Study, biosample, and omics records that NMDC itself produces and treats as authoritative." ;
@@ -55,7 +55,7 @@ Host tenant: `nmdc`. This is a case where the two axes differ.""" .
 Producer: NMDC. Host tenant: `nmdc`. Both axes agree here, which is what
 makes this the authoritative surface for NMDC records.""" .
 
-<https://w3id.org/turbomam/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> a lokf:Explanation ;
+<https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name> a lokf:Explanation ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
     schema1:description "A database name carries one axis, where the data is hosted. Who produced the data is a second, independent axis, and no naming scheme carries both at once." ;
@@ -84,7 +84,7 @@ tenant so that the `nmdc` tenant stays a clean, authoritative surface that the N
 curates. That separation is what makes the hosting axis meaningful. This bundle adds the
 production axis alongside it rather than in place of it.""" .
 
-<https://w3id.org/turbomam/nmdc-lokf-demo/glossary/berdl-tenant> a schema1:DefinedTerm ;
+<https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant> a schema1:DefinedTerm ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
     schema1:name "BERDL tenant" ;

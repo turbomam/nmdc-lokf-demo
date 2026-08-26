@@ -6,11 +6,11 @@ import { getCollection, type CollectionEntry } from 'astro:content';
  * BASE_IRI + the concept's path id (the LOKF default).
  */
 
-// Must match `base_iri` in knowledge/index.md. This is the RDF identity, not
-// the web location: concepts are named at w3id.org so the IRIs survive the
-// site moving. Every concept here also carries an explicit absolute `id`, so
-// this is the fallback path, but a mismatch would silently mint wrong IRIs.
-export const BASE_IRI = 'https://w3id.org/turbomam/nmdc-lokf-demo/';
+// Must match `base_iri` in knowledge/index.md. Concepts are named at the same
+// origin the site is served from, so every subject IRI dereferences to its own
+// page. Every concept also carries an explicit absolute `id`, so this is the
+// fallback path, but a mismatch would silently mint IRIs absent from the graph.
+export const BASE_IRI = 'https://turbomam.github.io/nmdc-lokf-demo/';
 
 export type Concept = CollectionEntry<'knowledge'>;
 

@@ -1,7 +1,7 @@
 ---
 lokf_version: "0.1"
 okf_version: "0.1"
-base_iri: https://w3id.org/turbomam/nmdc-lokf-demo/
+base_iri: https://turbomam.github.io/nmdc-lokf-demo/
 context: https://raw.githubusercontent.com/nicholsn/lokf/main/lokf.context.jsonld
 title: NMDC LOKF Demo
 description: Six data resources described as linked data, to test what LOKF adds over prose.
