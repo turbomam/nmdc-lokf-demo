@@ -25,6 +25,24 @@ one of them from this repo would cost only the published website.
 So the LOKF value chain is markdown, to JSON-LD, to RDF, in Python. `lokf new` adds a web
 front end on top because GitHub Pages is convenient.
 
+### One thing the scaffold ships that this repo does not
+
+`lokf new` also writes six Claude agent skills into `.claude/skills/`: `author-concept`,
+`build-knowledge-base`, `enrich-relations`, `publish-graph`, `query-knowledge-base`, and
+`scaffold-knowledge-base`, 616 lines in total.
+
+They were removed here. They are byte-identical copies of the skills inside the `lokf`
+package, and they reference `examples/acme-knowledge` thirteen times across three files. That
+is upstream's example bundle and it does not exist in this repo, so an agent following them
+here would run commands against a missing directory.
+
+Their content is otherwise unobjectionable: no destructive commands, no credential handling,
+no network calls beyond the `lokf` CLI itself, and the only mutating operation is
+`lokf propose --apply`, which rewrites frontmatter in the bundle after a review step.
+
+Run `lokf skills install` to get them, or read them in the `lokf` package under
+`src/lokf/skills/`.
+
 ## How this relates to BERIL's knowledge aggregations
 
 BERIL has four. This demo is smaller than three of them and overlaps none of them cleanly.
