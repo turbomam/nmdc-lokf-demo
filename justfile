@@ -54,8 +54,16 @@ check:
 ready pr:
     #!/usr/bin/env bash
     set -euo pipefail
-    if command -v pr-ready.sh >/dev/null 2>&1 || [ -x "$HOME/bin/pr-ready.sh" ]; then
-      "${HOME}/bin/pr-ready.sh" turbomam/nmdc-lokf-demo {{pr}}
+    # Resolve one path and run that one. Prefer PATH; fall back to ~/bin.
+    if gate="$(command -v pr-ready.sh 2>/dev/null)"; then
+      :
+    elif [ -x "$HOME/bin/pr-ready.sh" ]; then
+      gate="$HOME/bin/pr-ready.sh"
+    else
+      gate=""
+    fi
+    if [ -n "$gate" ]; then
+      "$gate" turbomam/nmdc-lokf-demo {{pr}}
     else
       echo "pr-ready.sh not installed. The check by hand:" >&2
       echo "  gh api repos/turbomam/nmdc-lokf-demo/pulls/{{pr}} --jq .head.sha" >&2
