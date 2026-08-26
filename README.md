@@ -87,7 +87,7 @@ code starts.
 
 [docs/atlas-as-linkml.md](docs/atlas-as-linkml.md): a slice of the atlas's 1,466 lines of Python
 validation, one type of sixteen, expressed as a LinkML schema. What translated cleanly, one real
-defect it found, and the semantic difference that makes the translation a modelling decision
+defect it found, and the tooling inconsistency that makes the translation a modelling decision
 rather than a port.
 
 ## What this taught us

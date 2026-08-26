@@ -61,10 +61,11 @@ rules: it checks that the field is present, not what the items are. Reported at
 https://github.com/kbaseincubator/BERIL-research-observatory/issues/405. Quoting the line fixes
 it.
 
-## The translation is easy but not semantics-preserving
+## The translation is easy; the tooling is not self-consistent
 
 This is the caveat worth knowing before anyone tries it, and it took validating real pages to
-find.
+find. The heading used to say "not semantics-preserving", which was the same mistake the body
+made: the semantics agree, and one tool disagrees with the schema it generated.
 
 `atlas_lint` reads "required" as **the key is present**, and so does the LinkML metamodel: its
 own description of `required` is "true means that the slot must be present in instances of the
@@ -75,8 +76,7 @@ class definition". But `linkml-validate` rejects an empty list anyway.
 linked_conflicts: []
 ```
 
-which `atlas_lint` accepts, correctly by its own rule, and which the generated JSON Schema
-rejects:
+which `atlas_lint` accepts, correctly by its own rule, and which `linkml-validate` rejects:
 
 ```
 [ERROR] 'linked_conflicts' is a required property in /
