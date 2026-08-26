@@ -1,5 +1,7 @@
 # NMDC LOKF demo
 
+Published site: https://turbomam.github.io/nmdc-lokf-demo/ (concept pages, plus an interactive graph at https://turbomam.github.io/nmdc-lokf-demo/graph )
+
 An exercise, not an NMDC product. Nothing here is authoritative about NMDC data.
 
 This is a small [LOKF](https://lokf.nolan-nichols.com/) bundle built to answer one
