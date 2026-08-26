@@ -75,6 +75,11 @@ with no separate file:
 The whole format is defined in one LinkML schema, and the JSON-LD context, JSON Schema,
 SHACL shapes, OWL ontology and SQL DDL are generated from it.
 
+## What it's built on, and what else exists
+
+`docs/landscape.md` covers the stack (Python required, Astro optional) and how this compares
+to the four knowledge aggregations already in the BERIL Research Observatory.
+
 ## Reproduce
 
 ```bash
