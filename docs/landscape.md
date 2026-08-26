@@ -36,15 +36,16 @@ package, and they reference `examples/acme-knowledge` thirteen times across thre
 is upstream's example bundle and it does not exist in this repo, so an agent following them
 here would run commands against a missing directory.
 
-Their content is otherwise unobjectionable, stated precisely:
+They are agent instructions, so what they do depends on the agent following them. Between
+them they direct an agent to author and edit concept and index files, run the `lokf` CLI
+including `propose --apply`, which rewrites frontmatter in place, scaffold a new repository
+with `lokf new`, remove the starter examples it creates, run `just setup`, which is
+`npm install` and contacts the configured package registry, and query a local `lokf serve`
+endpoint over HTTP at `127.0.0.1:8000`.
 
-- **No destructive commands and no credential handling.**
-- **Network calls: three, all to localhost.** `publish-graph` runs `curl` against
-  `http://127.0.0.1:8000/sparql` and `http://127.0.0.1:8000/graph.json`, which is the server
-  `lokf serve` starts on the same machine. No external host appears in any of the six.
-- **Writes to disk: two.** `scaffold-knowledge-base` runs `lokf new`, which creates a new
-  repository directory. `enrich-relations` runs `lokf propose --apply`, the only operation
-  that edits an existing bundle in place, and only after a review step.
+Nothing in them handles credentials or contacts a host the reader would not expect from that
+list. That is a description, not a clearance: an instruction file's effects are open-ended by
+nature, and anyone about to run them should read them rather than take a summary's word for it.
 
 Run `lokf skills install` to get them, or read them in the `lokf` package under
 `src/lokf/skills/`.
