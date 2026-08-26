@@ -10,6 +10,11 @@ Every figure below was counted or run on 2026-08-26 against LOKF 0.5.0. Nothing 
 `lokf.yaml` is the only hand-edited definition of the format: **1,624 lines, 29 classes, 76
 slots, 5 enums, 3 subsets**. Everything else is generated from it by stock LinkML generators.
 
+**None of these files are in this repository.** They live in the upstream LOKF project,
+https://github.com/nicholsn/lokf, and ship inside the installed `lokf` package. This bundle
+consumes the generated JSON-LD context rather than regenerating it. The counts below were taken
+from that repository at version 0.5.0; to check them, clone it and count.
+
 | Generated artifact | Lines | Made by | What it buys |
 |---|---:|---|---|
 | `lokf.context.jsonld` | 442 | `gen-jsonld-context` | Makes the frontmatter valid JSON-LD, so markdown expands to RDF with no separate file |
@@ -28,13 +33,15 @@ While authoring this bundle I invented a key. `seeAlso` looks like it should exi
 slot on `Concept`. The generated JSON Schema refused it:
 
 ```
-[ERROR] {'type': 'Dataset', 'id': '.../datasets/broken-example', 'title': 'Broken example',
- 'seeAlso': ['https://example.org/not-a-slot'], 'body': '# Body'}
+[ERROR] [<temp bundle>/0] {'type': 'Dataset', 'id': '.../datasets/broken-example',
+ 'title': 'Broken example', 'seeAlso': ['https://example.org/not-a-slot'], 'body': '# Body'}
  is not valid under any of the given schemas in /concepts/0
 ```
 
-Verbatim output in [`examples/validation-error.txt`](examples/validation-error.txt). Reproduce
-by adding that key to any concept and running:
+Committed at [`examples/validation-error.txt`](examples/validation-error.txt), with one path
+elided: `lokf validate` assembles the bundle into a temp file, so the bracketed location differs
+on every run and every machine. Everything after it is the schema's own message. Reproduce by
+adding that key to any concept and running:
 
 ```bash
 uvx --from 'lokf[build]' lokf validate knowledge
