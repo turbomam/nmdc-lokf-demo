@@ -1,7 +1,7 @@
 # NMDC LOKF demo
 
-Published site: https://turbomam.github.io/nmdc-lokf-demo/ (concept pages, plus an
-interactive graph at https://turbomam.github.io/nmdc-lokf-demo/graph)
+[Published site](https://turbomam.github.io/nmdc-lokf-demo/): concept pages, plus an
+[interactive graph](https://turbomam.github.io/nmdc-lokf-demo/graph).
 
 An exercise, not an NMDC product. Nothing here is authoritative about NMDC data, and
 anything operational should be checked against the live catalog rather than this page.
@@ -77,7 +77,7 @@ SHACL shapes, OWL ontology and SQL DDL are generated from it.
 
 ## What it's built on, and what else exists
 
-`docs/landscape.md` covers the stack (Python required, Astro optional) and how this compares
+[docs/landscape.md](docs/landscape.md) covers the stack (Python required, Astro optional) and how this compares
 to the four knowledge aggregations already in the BERIL Research Observatory.
 
 ## Reproduce
