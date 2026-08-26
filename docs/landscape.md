@@ -41,7 +41,8 @@ Among other things they direct an agent to author and edit concept and index fil
 `lokf propose --apply`, which rewrites frontmatter in place, scaffold a new repository with
 `lokf new` and delete the starter examples it creates, run `just setup`, and push to GitHub.
 Several of those commands reach the network on their own account: `uvx` fetches from a Python
-package index, `npm ci` from a JavaScript one, and `git push` from a remote.
+package index, `just setup` installs the site's JavaScript dependencies from a package
+registry, and `git push` contacts a remote.
 
 That list is illustrative, not exhaustive, and this section makes no claim about what the
 skills do or do not touch overall. Delegated instructions cannot be summarised safely, because
