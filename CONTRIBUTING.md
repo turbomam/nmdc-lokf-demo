@@ -28,7 +28,10 @@ just ready 18        # or: ~/bin/pr-ready.sh <owner>/<repo> <number>
 
 It exits nonzero unless all of these hold:
 
-- a Copilot review exists **whose timestamp is newer than the head commit**, so it saw this code
+- a Copilot review exists **whose `commit_id` equals the head SHA**, so it saw exactly this code.
+  Compare the SHAs, not the timestamps: a commit's date is set locally when you commit, so a
+  review can post after that date and still have examined the previous head, if you pushed
+  afterwards. A newer timestamp does not prove a newer subject.
 - that review has no inline comments
 - that review has no **suppressed** comments
 - no superseded review has unaddressed suppressed comments

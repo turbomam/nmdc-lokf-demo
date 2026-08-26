@@ -65,10 +65,15 @@ ready pr:
     if [ -n "$gate" ]; then
       "$gate" turbomam/nmdc-lokf-demo {{pr}}
     else
-      echo "pr-ready.sh not installed. The check by hand:" >&2
+      echo "pr-ready.sh is not installed, so THIS GATE DID NOT RUN. It has not passed." >&2
+      echo "" >&2
+      echo "Install it, or check all six conditions by hand. They are listed with the" >&2
+      echo "reasoning in CONTRIBUTING.md, section 'Before you merge'. The one that is" >&2
+      echo "easiest to get wrong: a review counts only if its commit_id equals the head" >&2
+      echo "SHA. Timestamps do not prove it, because a commit is dated when you commit" >&2
+      echo "it, not when you push it." >&2
+      echo "" >&2
       echo "  gh api repos/turbomam/nmdc-lokf-demo/pulls/{{pr}} --jq .head.sha" >&2
-      echo "  gh api repos/turbomam/nmdc-lokf-demo/pulls/{{pr}}/reviews --jq '.[]|select(.user.login|test(\"copilot\"))|.submitted_at'" >&2
-      echo "  gh api repos/turbomam/nmdc-lokf-demo/pulls/{{pr}}/reviews --jq '.[]|select(.body|test(\"Suppressed\"))|.body'" >&2
-      echo "The review must be NEWER than the head commit and report nothing." >&2
+      echo "  gh api repos/turbomam/nmdc-lokf-demo/pulls/{{pr}}/reviews --jq '.[].commit_id'" >&2
       exit 1
     fi
