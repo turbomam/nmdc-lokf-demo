@@ -16,6 +16,26 @@ pinned to `lokf==0.5.0`, which is the version this repository's documentation an
 outputs were produced with. Bump it deliberately in the `justfile`, then re-run `just ttl` and
 `just check`, rather than letting `uvx` drift to a new release silently.
 
+## The stack
+
+Two halves that do not depend on each other. The bundle is Python; the website is Node. You can
+work on either without installing the other.
+
+| Layer | What | Required? |
+|---|---|---|
+| Format | Markdown with YAML frontmatter, which is also valid JSON-LD | Yes. This is LOKF |
+| Schema | [LinkML](https://linkml.io/), one schema (`lokf.yaml`) that generates the JSON-LD context, JSON Schema, SHACL and OWL | Yes, but you never invoke it: `lokf` ships the generated artifacts |
+| Toolkit | `lokf` 0.5.0 (Python): `convert`, `validate`, `query`, `serve`, `tables`, `propose`, `vocab` | Yes |
+| Graph | RDF via pyoxigraph; `lokf serve` gives a SPARQL endpoint and a graph explorer from stdlib `http.server` | Yes, for the query recipes |
+| Website | Astro, TypeScript, Node, two remark plugins | **No.** Scaffold output. Deleting it costs only the published site |
+| Tasks | `just` recipes wrapping the above | No. Every recipe is a command you can run yourself |
+
+`lokf` declares no Node dependency. The website exists because `lokf new` scaffolds one and
+GitHub Pages is a convenient place to resolve concept IRIs.
+
+For the counts behind this table, and what the scaffold ships that this repository does not,
+see [landscape.md](landscape.md).
+
 ## Work with the bundle
 
 ```bash
