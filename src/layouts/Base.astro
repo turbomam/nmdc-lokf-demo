@@ -31,6 +31,9 @@ const graphs = jsonld ? (Array.isArray(jsonld) ? jsonld : [jsonld]) : [];
     {description && <meta property="og:description" content={description} />}
     <meta property="og:type" content="website" />
     <meta name="generator" content="Astro + LOKF" />
+    {/* GitHub Pages cannot content-negotiate, so a machine asking for RDF gets
+        this HTML. Advertise where the graph actually lives instead. */}
+    <link rel="alternate" type="application/ld+json" href={href('/graph.jsonld')} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

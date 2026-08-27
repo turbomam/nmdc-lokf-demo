@@ -60,7 +60,19 @@ The HTML does carry machine-readable data, but less than the name suggests. Each
 That is search-engine markup. **The typed relations are not in it.** `derivedFrom`, `dependsOn`,
 `about` and the producer `tags`, which are the entire point of the bundle, appear only in the
 whole-graph document at `/graph.jsonld`. So a consumer that dereferences a single concept IRI
-gets a name and a description; a consumer that fetches the whole graph gets the edges.
+gets a name and, if the concept has one, a description. A consumer that fetches the whole graph
+gets the edges.
+
+`description` really is conditional, and the glossary term shows why it is worth saying. Its
+frontmatter carries `definition` rather than `description`, and the embed only emits
+`description`, so that page dereferences to a bare name:
+
+```json
+{"@context": "https://schema.org", "@type": "GlossaryTerm", "@id": "...", "name": "BERDL tenant"}
+```
+
+The definition, which is the whole content of a glossary term, is not in the machine-readable
+output at all.
 
 Whether that matters depends on the consumer, and it is a reasonable thing for a static site to
 do. It is not a reasonable thing to leave undocumented in a demo whose claim is that the markdown
@@ -70,13 +82,21 @@ What is published, in full:
 
 | Path | Status | Content type | Carries the relations |
 |---|---|---|---|
-| a concept IRI | 200 | `text/html` | no, schema.org name and description only |
+| a concept IRI | 200 | `text/html` | no. schema.org `name`, plus `description` when the concept has one |
 | `/graph.jsonld` | 200 | `application/ld+json` | yes, all 6 concepts and 9 edges |
 | `/graph.json` | 200 | `application/json` | yes, as cytoscape elements |
 | `/knowledge.ttl` | 404 | | not published, though it is committed |
 
-There is also no `<link rel="alternate">` on any page pointing at a machine-readable
-representation, which is the usual way to advertise one when negotiation is unavailable.
+When negotiation is unavailable, the usual way to advertise a machine-readable representation is
+`<link rel="alternate">`. There was none on any page. There is now: every page carries
+
+```html
+<link rel="alternate" type="application/ld+json" href="/nmdc-lokf-demo/graph.jsonld" />
+```
+
+That points at the whole graph rather than at a per-concept document, because no per-concept RDF
+file is published. It is an honest pointer to where the relations actually live, not a claim that
+the concept itself has an alternate serialisation.
 
 ## Pin the context, not just the tools
 
@@ -94,8 +114,9 @@ makes no availability promise for this use.
 This is the scaffold default: `lokf new` writes that line into `knowledge/index.md`, and the
 installed template carries it verbatim, so every LOKF bundle inherits it.
 
-Worth noticing next to what this repository does elsewhere. Every `uvx` invocation here is pinned
-to `lokf==0.5.0` precisely so a new release cannot change behaviour silently. The *semantics* of
+Worth noticing next to what this repository does elsewhere. Every `uvx` invocation here is
+version-pinned, the 18 `lokf` ones to `0.5.0`, precisely so a new release cannot change behaviour
+silently. The *semantics* of
 the published graph were left pointing at a branch. Pinning the tools and not the vocabulary is a
 gap that is easy to miss, because tooling drift breaks a build and vocabulary drift does not
 break anything at all.
