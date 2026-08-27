@@ -67,18 +67,16 @@ whole-graph document at `/graph.jsonld`. So a consumer that dereferences a singl
 gets a name and, if the concept has one, a description. A consumer that fetches the whole graph
 gets the edges.
 
-`description` really is conditional, and the glossary term shows why it is worth saying. Its
-frontmatter carries `definition` rather than `description`, and the embed only emits
-`description`, so that page dereferences to a bare name:
+`description` is conditional, and the glossary term is how that was noticed. Its frontmatter
+carries `definition` rather than `description`, and the embed emitted only `description`, so the
+page dereferenced to a bare name with the definition, the whole content of a glossary term,
+missing from the machine-readable output. Fixed by mapping `definition` onto schema.org
+`description`, which `DefinedTerm` already takes.
 
-```json
-{"@context": "https://schema.org", "@type": "DefinedTerm",
- "@id": "https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant",
- "name": "BERDL tenant"}
-```
-
-The definition, which is the whole content of a glossary term, is not in the machine-readable
-output at all.
+The general point survives the fix: **a field with no mapping is silently absent, not an error.**
+Nothing validates that a concept's substance reached the projection, so a frontmatter key that
+the site layer does not know about disappears without complaint. Worth checking per type rather
+than assuming, which is what turned this up.
 
 Whether that matters depends on the consumer, and it is a reasonable thing for a static site to
 do. It is not a reasonable thing to leave undocumented in a demo whose claim is that the markdown

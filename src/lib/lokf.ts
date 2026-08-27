@@ -89,8 +89,19 @@ export function conceptJsonLd(e: Concept) {
     '@id': iriOf(e),
     name: titleOf(e),
   };
-  if (d.description) node.description = d.description;
+  // A GlossaryTerm carries `definition` rather than `description`, and the
+  // definition is the entire content of the term. Emitting only `description`
+  // left the glossary concept dereferencing to a bare name. schema.org
+  // `DefinedTerm`, which is already the emitted @type, takes `description`.
+  const summary = d.description ?? d.definition;
+  if (summary) node.description = summary;
   if (d.resource) node.url = d.resource;
   if (Array.isArray(d.sameAs) && d.sameAs.length) node.sameAs = d.sameAs;
+  // Deliberately not mapped. `tags` are producer attributions rather than
+  // subject keywords, and mapping them to schema.org `keywords` would assert
+  // something different from what they mean. The typed relations (`derivedFrom`,
+  // `dependsOn`, `about`) are not here either: this block is search-engine
+  // markup for a single page, and the graph lives at /graph.jsonld, which every
+  // page points at with rel="describedby". See docs/lessons.md.
   return node;
 }
