@@ -1,3 +1,7 @@
+# Every lokf invocation is pinned to 0.5.0, the version this repo's docs and
+# committed outputs were produced with. Bump deliberately, then re-run `just ttl`
+# and `just check`, rather than letting uvx drift to a new release silently.
+
 # List recipes
 default:
     @just --list
@@ -20,19 +24,19 @@ site:
 
 # Interactive SPARQL endpoint + graph explorer over the bundle
 serve:
-    uvx --from lokf lokf serve knowledge
+    uvx --from 'lokf==0.5.0' lokf serve knowledge
 
 # Project the bundle to RDF (Turtle) on stdout
 rdf:
-    uvx --from lokf lokf convert knowledge --format ttl
+    uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl
 
 # Project the bundle to linked tables (CSV under build/tables)
 tables:
-    uvx --from 'lokf[tables]' lokf tables knowledge --format csv --output build/tables
+    uvx --from 'lokf[tables]==0.5.0' lokf tables knowledge --format csv --output build/tables
 
 # Regenerate the committed RDF (CI fails if this leaves a diff)
 ttl:
-    uvx --from lokf lokf convert knowledge --format ttl -o knowledge.ttl
+    uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o knowledge.ttl
 
 # What CI checks: bundle validates and knowledge.ttl is current.
 # Read-only: regenerates to a temp file so the working tree is never touched.
@@ -40,10 +44,10 @@ ttl:
 check:
     #!/usr/bin/env bash
     set -euo pipefail
-    uvx --from 'lokf[build]' lokf validate knowledge
+    uvx --from 'lokf[build]==0.5.0' lokf validate knowledge
     tmp="$(mktemp -t knowledge.XXXXXX.ttl)"
     trap 'rm -f "$tmp"' EXIT
-    uvx --from lokf lokf convert knowledge --format ttl -o "$tmp"
+    uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o "$tmp"
     if ! diff -u knowledge.ttl "$tmp"; then
       echo "knowledge.ttl is out of date. Regenerate with: just ttl" >&2
       exit 1

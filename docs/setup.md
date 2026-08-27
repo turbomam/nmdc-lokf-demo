@@ -7,12 +7,14 @@ Everything here was run on macOS 15 with the versions listed. Nothing is theoret
 | Tool | Version used | Needed for |
 |---|---|---|
 | [uv](https://docs.astral.sh/uv/) | 0.12.5 | Everything. `uvx` runs the `lokf` toolkit without installing it |
-| [just](https://github.com/casey/just) | 1.58.0 | The task recipes. Optional; every recipe is a one-line command |
+| [just](https://github.com/casey/just) | 1.58.0 | The task recipes. Optional; most are a single command, and `just check` is a short bash script |
 | Node | 24.15.0 | The website only. Not needed to work with the bundle |
 | Python | 3.13 | Provided by `uv`; no separate install needed |
 
 You do **not** need to install `lokf` or `linkml`. Every recipe fetches them through `uvx`,
-pinned to the version the documentation was written against.
+pinned to `lokf==0.5.0`, which is the version this repository's documentation and committed
+outputs were produced with. Bump it deliberately in the `justfile`, then re-run `just ttl` and
+`just check`, rather than letting `uvx` drift to a new release silently.
 
 ## Work with the bundle
 
@@ -65,9 +67,12 @@ Current configuration of this repository, for comparison:
 
 ```
 build_type: workflow
-source:     branch main, path /
 url:        https://turbomam.github.io/nmdc-lokf-demo/
 ```
+
+The API also reports a `source` of `branch main, path /`. That field is vestigial when
+`build_type` is `workflow`; the deploy comes from the workflow, not from a branch, and there
+is no branch to configure.
 
 **Set your own base IRI before publishing.** Concepts here are named at
 `https://turbomam.github.io/nmdc-lokf-demo/` so that every subject IRI resolves to its own
