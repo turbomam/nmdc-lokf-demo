@@ -23,7 +23,6 @@ Usage:  python3 scripts/lint-site-prose.py [dist_dir]
 Exit:   0 clean, 1 findings, 2 nothing to check
 """
 
-import html
 import pathlib
 import re
 import sys
@@ -47,19 +46,24 @@ READER_ATTRS = (
     "aria-placeholder",
 )
 
-# `<script>` types that hold data rather than code. They never execute and never
-# write to the DOM, and their contents are already covered as body text or as a
-# meta description, so scanning them reports the same character two or three
-# times. The JSON-LD block this site embeds on every concept page is exactly
-# this case.
+# `<script>` types whose contents are not scanned as code. Kept deliberately
+# narrow: excluding a type that client code reads and renders would let a
+# reader-visible character through, which is the expensive direction.
 DATA_SCRIPT_TYPES = {
+    # Duplicated on this site: the JSON-LD block holds the concept's name and
+    # description, both already scanned as body text and as the meta
+    # description, so scanning it reports the same character two or three times.
+    # This exclusion is specific to that arrangement and would need revisiting
+    # on a site whose JSON-LD carried prose appearing nowhere else.
     "application/ld+json",
-    "application/json",
+    # URLs and configuration. Cannot carry prose a reader will see.
     "importmap",
     "speculationrules",
-    "text/template",
-    "text/x-template",
 }
+# Deliberately NOT excluded: application/json, text/template and
+# text/x-template. Client code routinely reads those and inserts the result into
+# the page, and nothing guarantees that text appears in another scanned region,
+# so skipping them would let a reader-visible dash through.
 
 JS_ESCAPE = re.compile(
     r"(\\*)\\(?:u\{([0-9a-fA-F]{1,6})\}|u([0-9a-fA-F]{4})|x([0-9a-fA-F]{2}))"
@@ -170,7 +174,12 @@ def bundle_text(root: pathlib.Path, srcs: list[str]) -> list[tuple[str, str]]:
     """
     out = []
     for src in srcs:
-        name = src.split("/")[-1]
+        # A query string or fragment is part of the URL, not of the filename.
+        # Leaving it on turns app.js?v=1 into a name nothing matches, and the
+        # bundle is then skipped without a word.
+        name = src.split("#")[0].split("?")[0].split("/")[-1]
+        if not name:
+            continue
         for candidate in root.rglob(name):
             if candidate.is_file():
                 raw = candidate.read_text(encoding="utf-8", errors="replace")
@@ -187,7 +196,10 @@ def regions(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
     if reader.title.strip():
         out.append(("<title>", reader.title))
     out += [("meta description", d) for d in reader.meta_descriptions]
-    out += [(where, html.unescape(value)) for where, value in reader.attributes]
+    # Values arrive already resolved: convert_charrefs=True handles attributes too.
+    # Unescaping again turns a deliberately literal title="Write &amp;mdash;", which
+    # a reader sees as &mdash;, into an actual em dash and fails on it.
+    out += list(reader.attributes)
     out += [("inline script", decode_js_escapes(s)) for s in reader.inline_scripts]
     out += bundle_text(root, reader.script_srcs)
     return out
