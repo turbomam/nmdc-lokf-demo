@@ -29,21 +29,36 @@ BANNED = {
 
 STRIP = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.S | re.I)
 TAG = re.compile(r"<[^>]+>")
+BODY = re.compile(r"<body\b[^>]*>(.*?)</body>", re.S | re.I)
+META = re.compile(r"<meta\b[^>]*>", re.I)
+ATTR = re.compile(r"""([a-zA-Z-]+)\s*=\s*("([^"]*)"|'([^']*)')""")
 
 
-def visible_text(markup: str) -> str:
-    return html.unescape(TAG.sub(" ", STRIP.sub(" ", markup)))
+def body_text(markup: str) -> str:
+    """Rendered text only.
+
+    Scan the body element rather than the whole document. Running this over the
+    full markup pulls in head content, so a title finding gets reported twice,
+    once here and once by head_fields, and the duplicate is labelled with the
+    wrong region.
+    """
+    m = BODY.search(markup)
+    region = m.group(1) if m else markup
+    return html.unescape(TAG.sub(" ", STRIP.sub(" ", region)))
 
 
 def head_fields(markup: str) -> list[tuple[str, str]]:
     """Title and meta description: read by people, invisible to a body scan."""
     out = []
     if m := re.search(r"<title[^>]*>(.*?)</title>", markup, re.S | re.I):
-        out.append(("<title>", html.unescape(m.group(1))))
-    if m := re.search(
-        r'<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']', markup, re.S | re.I
-    ):
-        out.append(("meta description", html.unescape(m.group(1))))
+        out.append(("<title>", html.unescape(TAG.sub("", m.group(1)))))
+    # Match the tag, then read its attributes, rather than assuming name comes
+    # before content. A build is free to emit them in either order, or to put
+    # other attributes between them.
+    for tag in META.findall(markup):
+        attrs = {k.lower(): (v3 if v3 is not None else v4) for k, _, v3, v4 in ATTR.findall(tag)}
+        if attrs.get("name", "").lower() == "description" and "content" in attrs:
+            out.append(("meta description", html.unescape(attrs["content"])))
     return out
 
 
@@ -66,7 +81,7 @@ def main(argv: list[str]) -> int:
     findings = []
     for page in pages:
         markup = page.read_text(encoding="utf-8", errors="replace")
-        regions = [("body", visible_text(markup))] + head_fields(markup)
+        regions = [("body", body_text(markup))] + head_fields(markup)
         for where, text in regions:
             for char, (name, instead) in BANNED.items():
                 for m in re.finditer(re.escape(char), text):
