@@ -47,6 +47,7 @@ just --list          # every recipe, with a one-line description each
 |---|---|
 | `just check` | What CI's `bundle` job runs. Validates the bundle and confirms `knowledge.ttl` matches the concepts. **Read-only**; never touches the working tree |
 | `just lint-site` | What CI's `site-prose` job runs. Builds the site, then fails on em and en dashes in rendered body text, page titles and meta descriptions |
+| `just lint-dist` | The same check without rebuilding. What the pages workflow runs before uploading the artifact |
 | `just ttl` | Regenerates `knowledge.ttl`. The one command that rewrites it |
 | `just rdf` | Prints the bundle as Turtle to stdout |
 | `just serve` | A local SPARQL endpoint and graph explorer, no Node required |
@@ -207,4 +208,8 @@ inherited from the `lokf new` scaffold is caught the same as our own. The job in
 `just lint-site`, so the recipe is the single definition and running it locally checks exactly
 what CI checks.
 
-`.github/workflows/pages.yml` builds and deploys the site on pushes to `main`.
+`.github/workflows/pages.yml` builds and deploys the site on pushes to `main`, and runs the same
+prose check between the build and the artifact upload. That is deliberate duplication: `check.yml`
+runs on pull requests and `pages.yml` deploys on pushes, independently of each other, so a failing
+check in one would not have stopped a deploy from the other. Both call `just lint-dist`, so there
+is one definition of the check and two callers.

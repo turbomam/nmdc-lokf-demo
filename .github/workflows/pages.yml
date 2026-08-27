@@ -26,8 +26,16 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
+      - uses: astral-sh/setup-uv@v5
       - run: npm ci
       - run: npm run build
+      # Before the artifact is uploaded, not in a parallel workflow. check.yml's
+      # site-prose job runs on pull requests, but this workflow deploys on every
+      # push to main independently of it, so a failing check there would not have
+      # stopped a deploy here. Gating the upload is what makes the check mean
+      # something.
+      - name: Typography in the published prose
+        run: uvx --from 'rust-just==1.58.0' just lint-dist
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist

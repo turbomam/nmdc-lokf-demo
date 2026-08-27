@@ -41,7 +41,13 @@ ttl:
 # Check the built site for typography that should never reach a reader.
 # Lints dist/, meaning exactly what ships, so code comments are out of scope and
 # text inherited from the lokf new scaffold is caught the same as our own.
-lint-site: site
+lint-site: site lint-dist
+
+# Lint an existing dist/ without rebuilding it. Split out so the pages workflow,
+# which has just built the site itself, can run the same check before uploading
+# the artifact rather than repeating the command. One definition of the check,
+# two callers.
+lint-dist:
     # Through uv, not a bare python3. docs/setup.md promises Python comes from
     # uv with no separate install, and a bare python3 would break that promise
     # on a machine that has none. The script is stdlib-only, so --no-project is
