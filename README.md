@@ -102,6 +102,15 @@ and why the frontmatter mapping is the real work.
 [docs/landscape.md](docs/landscape.md) covers the stack (Python required, Astro optional) and how this compares
 to the four knowledge aggregations already in the BERIL Research Observatory.
 
+## Build, run and publish
+
+[docs/setup.md](docs/setup.md): prerequisites and versions, every `just` recipe, running the
+site locally, **switching GitHub Pages on** (a fork gets the workflow but no site until you
+do), and what CI checks.
+
+[docs/what-changed.md](docs/what-changed.md): what this differs from a fresh `lokf new`, who
+maintains which part, and the four related repositories with what each owns.
+
 ## Reproduce
 
 ```bash
