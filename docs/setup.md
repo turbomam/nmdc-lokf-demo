@@ -187,7 +187,10 @@ be dispatched by hand. If a deploy seems to be missing, check
 dispatch. A push to a feature branch with no open pull request does not trigger it. Two jobs:
 
 `bundle` validates the bundle against the LOKF schema, then regenerates `knowledge.ttl` to a
-temporary file and fails if the result differs from the committed one. A stale `knowledge.ttl`
+temporary file and fails if the result differs from the committed one. It also greps tracked
+markdown for em and en dashes, which is a `git grep` rather than a linter: the site check needs a
+script because it has to decide which parts of built HTML a reader sees, and a character in a
+markdown file needs no such judgement. A stale `knowledge.ttl`
 fails the build rather than sitting unnoticed. It runs `just check`, so the version pins live in
 one place instead of being repeated here.
 

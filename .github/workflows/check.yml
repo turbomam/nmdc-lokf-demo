@@ -40,6 +40,21 @@ jobs:
       - name: Validate the bundle and check knowledge.ttl is current
         run: uvx --from 'rust-just==1.58.0' just check
 
+      # Deliberately a grep and not a linter. The site check next door needed a
+      # script because it has to decide which parts of built HTML a reader sees;
+      # that judgement is what produced its false positives and its review
+      # rounds. A character is either in a markdown file or it is not, so there
+      # is nothing to configure, nothing to misread, and no prose to go stale.
+      #
+      # git grep restricts this to tracked files for free, and prints the
+      # offending line so the failure explains itself.
+      - name: No em or en dashes in tracked markdown
+        run: |
+          if git grep -n -P '\x{2014}|\x{2013}' -- '*.md'; then
+            echo "::error::em or en dash in tracked markdown; use commas, periods, colons or parentheses"
+            exit 1
+          fi
+
   site-prose:
     # The em dash that shipped in the footer of all 8 pages was invisible to
     # every check this repository had, because they all look at the bundle or at
