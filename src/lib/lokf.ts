@@ -99,8 +99,15 @@ const SCHEMA_TYPE: Record<string, string> = {
  */
 export function summaryOf(e: Concept): string | undefined {
   const d = e.data as Record<string, unknown>;
-  const v = d.description ?? d.definition;
-  return typeof v === 'string' && v.trim() ? v : undefined;
+  // First non-blank, not first non-nullish. `??` would let an empty
+  // `description` win and then be rejected by the blank check, suppressing a
+  // perfectly good `definition`. The content schema permits empty strings, and
+  // this helper already treats blank as absent, so it has to treat it as absent
+  // when choosing as well as when returning.
+  for (const v of [d.description, d.definition]) {
+    if (typeof v === 'string' && v.trim()) return v;
+  }
+  return undefined;
 }
 
 export function conceptJsonLd(e: Concept) {
