@@ -52,8 +52,10 @@ hosting limit rather than anything about LOKF or LinkML, and it is worth separat
 because a reader evaluating the pattern may otherwise assume the demo is showing what the format
 can do.
 
-The HTML does carry machine-readable data, but less than the name suggests. Each page embeds a
-`<script type="application/ld+json">` block, and on a concept page it contains exactly this:
+The HTML does carry machine-readable data, but less than the name suggests, and on fewer pages.
+`Base.astro` emits a `<script type="application/ld+json">` block only when it is given one, and
+only concept pages supply it: the homepage and the graph page embed nothing. On a concept page it
+contains exactly this:
 
 ```json
 {"@context": "https://schema.org", "@type": "Dataset", "@id": "...", "name": "...", "description": "..."}
@@ -87,6 +89,7 @@ What is published, in full:
 | Path | Status | Content type | Carries the relations |
 |---|---|---|---|
 | a concept IRI | 200 | `text/html` | no. schema.org `name`, plus `description` when the concept has one |
+| the homepage or `/graph` | 200 | `text/html` | no. neither embeds JSON-LD at all |
 | `/graph.jsonld` | 200 | `application/ld+json` | yes, all 6 concepts and 9 edges |
 | `/graph.json` | 200 | `application/json` | yes, as cytoscape elements |
 | `/knowledge.ttl` | 404 | | not published, though it is committed |
