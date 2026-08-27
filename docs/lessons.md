@@ -68,10 +68,11 @@ gets a name and, if the concept has one, a description. A consumer that fetches 
 gets the edges.
 
 `description` is conditional, and the glossary term is how that was noticed. Its frontmatter
-carries `definition` rather than `description`, and the embed emitted only `description`, so the
-page dereferenced to a bare name with the definition, the whole content of a glossary term,
-missing from the machine-readable output. Fixed by mapping `definition` onto schema.org
-`description`, which `DefinedTerm` already takes.
+carries `definition` rather than `description`, and the site read `description` alone, so the term
+had no page tagline, no meta description, and a JSON-LD block holding only its name. Its primary
+definition text reached none of the three. Fixed by mapping `definition` onto schema.org
+`description`, which `DefinedTerm` already takes, through a single helper the three consumers
+share.
 
 The general point survives the fix: **a field with no mapping is silently absent, not an error.**
 Nothing validates that a concept's substance reached the projection, so a frontmatter key that

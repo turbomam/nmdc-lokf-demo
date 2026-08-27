@@ -81,6 +81,26 @@ const SCHEMA_TYPE: Record<string, string> = {
   Playbook: 'HowTo',
 };
 
+/** The one-line summary a concept leads with.
+ *
+ * A GlossaryTerm carries `definition` where other types carry `description`.
+ * Reading `description` alone left the glossary concept with no page tagline, no
+ * meta description, and a JSON-LD block holding only its name.
+ *
+ * This exists so the three consumers cannot drift: the JSON-LD block, the page
+ * tagline, and the `<meta name="description">` all take the same value. Two of
+ * them had already drifted from the third once.
+ *
+ * `definition` is the term's primary definition text, not everything the file
+ * says: a glossary entry can also carry body content below the frontmatter, and
+ * this one does.
+ */
+export function summaryOf(e: Concept): string | undefined {
+  const d = e.data as Record<string, unknown>;
+  const v = d.description ?? d.definition;
+  return typeof v === 'string' && v.trim() ? v : undefined;
+}
+
 export function conceptJsonLd(e: Concept) {
   const d = e.data as Record<string, unknown>;
   const node: Record<string, unknown> = {
@@ -89,11 +109,7 @@ export function conceptJsonLd(e: Concept) {
     '@id': iriOf(e),
     name: titleOf(e),
   };
-  // A GlossaryTerm carries `definition` rather than `description`, and the
-  // definition is the entire content of the term. Emitting only `description`
-  // left the glossary concept dereferencing to a bare name. schema.org
-  // `DefinedTerm`, which is already the emitted @type, takes `description`.
-  const summary = d.description ?? d.definition;
+  const summary = summaryOf(e);
   if (summary) node.description = summary;
   if (d.resource) node.url = d.resource;
   if (Array.isArray(d.sameAs) && d.sameAs.length) node.sameAs = d.sameAs;
