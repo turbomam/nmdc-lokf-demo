@@ -2,7 +2,7 @@
 lokf_version: "0.1"
 okf_version: "0.1"
 base_iri: https://turbomam.github.io/nmdc-lokf-demo/
-context: https://raw.githubusercontent.com/nicholsn/lokf/main/lokf.context.jsonld
+context: https://raw.githubusercontent.com/nicholsn/lokf/a723ac0a/lokf.context.jsonld
 title: NMDC LOKF Demo
 description: Six concepts recording who contributed which resource in a set of NMDC-related datasets, described as linked data to test what LOKF adds over prose.
 license: https://www.gnu.org/licenses/agpl-3.0.html
