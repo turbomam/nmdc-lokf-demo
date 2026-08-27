@@ -3,8 +3,12 @@ name: check
 # Three things that can silently rot:
 #   1. the bundle stops validating against the LOKF schema
 #   2. the committed knowledge.ttl drifts from the concepts it was generated from
-#   3. banned typography reaches the published site, where nothing else looks
-# All three are cheap to check and none is caught by the pages build.
+#   3. banned typography reaches the published site
+#
+# All three are cheap to check. The first two are caught only here. The third is
+# also checked in pages.yml, which gates the artifact upload, because that is the
+# workflow that actually publishes; this one catches it on pull requests, before
+# anything is published at all. Both call `just lint-dist`.
 #
 # Each job runs its `just` recipe rather than repeating the recipe's commands:
 # `bundle` runs `just check`, `site-prose` runs `just lint-site`. An earlier
