@@ -1,9 +1,23 @@
 import type { APIRoute } from 'astro';
 import { loadBundle, iriOf, resolveRef, RELATION_SLOTS } from '../lib/lokf';
 
-/** The LOKF JSON-LD context published by the lokf project. */
+/** The LOKF JSON-LD context published by the lokf project, pinned.
+ *
+ * a723ac0a8ab84b910f55d1f714de980ed49ebe8c is the commit tagged v0.5.0 upstream, matching the `lokf==0.5.0` this
+ * repository pins everywhere else. It was on `main` before, which meant every
+ * term in the published graph meant whatever that file said at the moment a
+ * consumer resolved it: an upstream edit would have changed this graph's
+ * semantics with no commit here and nothing to notice.
+ *
+ * A commit rather than the tag, because a tag can be moved and a commit cannot,
+ * and vocabulary drift is invisible in a way tooling drift is not. Tooling
+ * drift breaks a build; this would have broken nothing and changed meaning.
+ *
+ * Verified identical to `main` and to the context inside the installed 0.5.0
+ * wheel when pinned, so this changed stability and not semantics.
+ */
 const CONTEXT =
-  'https://raw.githubusercontent.com/nicholsn/lokf/main/lokf.context.jsonld';
+  'https://raw.githubusercontent.com/nicholsn/lokf/a723ac0a8ab84b910f55d1f714de980ed49ebe8c/lokf.context.jsonld';
 
 /**
  * The whole bundle as one JSON-LD document — this is the LOKF thesis: the
