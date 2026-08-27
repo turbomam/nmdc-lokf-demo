@@ -6,7 +6,7 @@ Everything here was run on macOS 15 with the versions listed. Nothing is theoret
 
 | Tool | Version used | Needed for |
 |---|---|---|
-| [uv](https://docs.astral.sh/uv/) | 0.12.5 | The bundle recipes. `uvx` runs the `lokf` toolkit without installing it. Not needed for `setup`, `dev` or `site`, which call only npm |
+| [uv](https://docs.astral.sh/uv/) | 0.12.5 | The bundle recipes, and the Python that `just lint-site` runs on. `uvx` runs the `lokf` toolkit without installing it. Not needed for `setup`, `dev` or `site`, which call only npm |
 | [just](https://github.com/casey/just) | 1.58.0 | The task recipes. Optional; most are a single command, and `just check` is a short bash script |
 | Node | 24.15.0 | The website only. Not needed to work with the bundle |
 | Python | 3.13 | Provided by `uv`; no separate install needed |

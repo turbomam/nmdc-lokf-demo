@@ -42,7 +42,11 @@ ttl:
 # Lints dist/, meaning exactly what ships, so code comments are out of scope and
 # text inherited from the lokf new scaffold is caught the same as our own.
 lint-site: site
-    python3 scripts/lint-site-prose.py dist
+    # Through uv, not a bare python3. docs/setup.md promises Python comes from
+    # uv with no separate install, and a bare python3 would break that promise
+    # on a machine that has none. The script is stdlib-only, so --no-project is
+    # enough and nothing needs resolving.
+    uv run --no-project --python 3.13 scripts/lint-site-prose.py dist
 
 # What CI's `bundle` job runs: the bundle validates and knowledge.ttl is
 # current. Not the whole suite; the `site-prose` job runs `just lint-site`.

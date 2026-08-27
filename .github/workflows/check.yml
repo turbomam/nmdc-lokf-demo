@@ -6,8 +6,10 @@ name: check
 #   3. banned typography reaches the published site, where nothing else looks
 # All three are cheap to check and none is caught by the pages build.
 #
-# This runs `just check` rather than repeating its commands. An earlier version
-# inlined them, which meant the version pins in the justfile did not apply here:
+# Each job runs its `just` recipe rather than repeating the recipe's commands:
+# `bundle` runs `just check`, `site-prose` runs `just lint-site`. An earlier
+# version inlined them, which meant the version pins in the justfile did not
+# apply here:
 # CI resolved whatever lokf release was newest, so a new release could fail
 # Actions or generate different Turtle while the documented local check passed.
 # One definition, one set of pins, no way for local and CI to diverge.

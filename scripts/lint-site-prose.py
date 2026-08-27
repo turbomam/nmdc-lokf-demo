@@ -33,6 +33,9 @@ from html.parser import HTMLParser
 
 # Character, name, what to use instead. Keep the reason in the message: the
 # person who trips this is usually not the person who wrote the text.
+# Elements whose text never reaches a reader as rendered prose.
+SKIP_TAGS = ("script", "style", "template")
+
 BANNED = {
     "—": ("em dash", "comma, period, colon, or parentheses"),
     "–": ("en dash", '"to" for ranges, or a hyphen'),
@@ -56,7 +59,13 @@ class PageReader(HTMLParser):
             self._in_body += 1
         elif tag == "title":
             self._in_title = True
-        elif tag in ("script", "style"):
+        elif tag in SKIP_TAGS:
+            # `template` contents are inert. HTMLParser hands them to
+            # handle_data like any other text, so they were being counted as
+            # rendered body text, but nothing in a template reaches a reader
+            # unless runtime code clones it, and runtime-assembled text is out
+            # of scope by design. Counting it would be a false failure on valid
+            # built HTML.
             self._skip += 1
         elif tag == "meta":
             a = {k.lower(): (v or "") for k, v in attrs}
@@ -68,13 +77,15 @@ class PageReader(HTMLParser):
             self._in_body = max(0, self._in_body - 1)
         elif tag == "title":
             self._in_title = False
-        elif tag in ("script", "style"):
+        elif tag in SKIP_TAGS:
             self._skip = max(0, self._skip - 1)
 
     def handle_data(self, data: str) -> None:
+        if self._skip:
+            return
         if self._in_title:
             self._title += data
-        elif self._in_body and not self._skip:
+        elif self._in_body:
             self._body.append(data)
 
     def result(self) -> list[tuple[str, str]]:
