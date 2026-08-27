@@ -1,9 +1,12 @@
 # What building this bundle taught us
 
-Four things, each learned by getting it wrong first. They are written for someone about to do
+Six things, each learned by getting it wrong first. They are written for someone about to do
 the same thing, not as a record of what happened here.
 
-Every claim below was measured on 2026-08-26 against LOKF 0.5.0.
+Everything here was measured against LOKF 0.5.0, and against linkml 1.11.1 where a section names
+it. The first four were measured on 2026-08-26, while building the bundle. The two about
+dereferencing and about the context IRI were measured on 2026-08-27, against the deployed site,
+and say so where the figures appear.
 
 ## Name concepts where they resolve, or register the prefix first
 
