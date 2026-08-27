@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import {
-  loadBundle, iriOf, hrefOf, titleOf, relationsOf, conceptJsonLd,
+  loadBundle, iriOf, hrefOf, titleOf, relationsOf, conceptJsonLd, summaryOf,
   REL_LABEL, href,
 } from '../lib/lokf';
 
@@ -30,10 +30,10 @@ const back = concepts.filter(
 );
 ---
 
-<Base title={titleOf(entry)} description={d.description} jsonld={conceptJsonLd(entry)}>
+<Base title={titleOf(entry)} description={summaryOf(entry)} jsonld={conceptJsonLd(entry)}>
   <p><span class="badge">{d.type}</span></p>
   <h1>{titleOf(entry)}</h1>
-  {d.description && <p class="tagline">{d.description}</p>}
+  {summaryOf(entry) && <p class="tagline">{summaryOf(entry)}</p>}
   {d.tags && (
     <div class="tags">{(d.tags as string[]).map((t) => <span>{t}</span>)}</div>
   )}

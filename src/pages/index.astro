@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { loadBundle, hrefOf, titleOf, href } from '../lib/lokf';
+import { loadBundle, hrefOf, titleOf, href, summaryOf } from '../lib/lokf';
 
 const { concepts } = await loadBundle();
 const types = [...new Set(concepts.map((c) => c.data.type))].sort();
@@ -33,7 +33,7 @@ const byType = (t: string) => concepts.filter((c) => c.data.type === t);
         {byType(t).map((c) => (
           <a class="card" href={hrefOf(c)}>
             <h3>{titleOf(c)}</h3>
-            {c.data.description && <p>{c.data.description}</p>}
+            {summaryOf(c) && <p>{summaryOf(c)}</p>}
           </a>
         ))}
       </div>

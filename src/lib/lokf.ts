@@ -81,6 +81,35 @@ const SCHEMA_TYPE: Record<string, string> = {
   Playbook: 'HowTo',
 };
 
+/** The one-line summary a concept leads with.
+ *
+ * A GlossaryTerm carries `definition` where other types carry `description`.
+ * Reading `description` alone left the glossary concept with no page tagline, no
+ * meta description, and a JSON-LD block holding only its name.
+ *
+ * This exists so the four consumers cannot drift: the JSON-LD block, the page
+ * tagline, the `<meta name="description">`, and the homepage card. Three of them
+ * had already drifted from the fourth, and the first version of this helper
+ * still missed the card, which is the argument for routing every one of them
+ * through here rather than counting on the next person to notice.
+ *
+ * `definition` is the term's primary definition text, not everything the file
+ * says: a glossary entry can also carry body content below the frontmatter, and
+ * this one does.
+ */
+export function summaryOf(e: Concept): string | undefined {
+  const d = e.data as Record<string, unknown>;
+  // First non-blank, not first non-nullish. `??` would let an empty
+  // `description` win and then be rejected by the blank check, suppressing a
+  // perfectly good `definition`. The content schema permits empty strings, and
+  // this helper already treats blank as absent, so it has to treat it as absent
+  // when choosing as well as when returning.
+  for (const v of [d.description, d.definition]) {
+    if (typeof v === 'string' && v.trim()) return v;
+  }
+  return undefined;
+}
+
 export function conceptJsonLd(e: Concept) {
   const d = e.data as Record<string, unknown>;
   const node: Record<string, unknown> = {
@@ -89,8 +118,17 @@ export function conceptJsonLd(e: Concept) {
     '@id': iriOf(e),
     name: titleOf(e),
   };
-  if (d.description) node.description = d.description;
+  const summary = summaryOf(e);
+  if (summary) node.description = summary;
   if (d.resource) node.url = d.resource;
   if (Array.isArray(d.sameAs) && d.sameAs.length) node.sameAs = d.sameAs;
+  // Deliberately not mapped. `tags` are producer attributions rather than
+  // subject keywords, and mapping them to schema.org `keywords` would assert
+  // something different from what they mean. The typed relations (`derivedFrom`,
+  // `dependsOn`, `about`) are not here either: this block is search-engine
+  // markup for a single page, and the graph lives at /graph.jsonld. Concept
+  // pages point at it with rel="describedby"; the graph page uses
+  // rel="alternate", where the whole graph really is another representation of
+  // that page. See docs/lessons.md.
   return node;
 }
