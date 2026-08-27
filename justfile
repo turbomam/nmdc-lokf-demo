@@ -38,7 +38,24 @@ tables:
 ttl:
     uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o knowledge.ttl
 
-# What CI checks: bundle validates and knowledge.ttl is current.
+# Check the built site for typography that should never reach a reader.
+# Lints dist/, meaning exactly what ships, so code comments are out of scope and
+# text inherited from the lokf new scaffold is caught the same as our own.
+lint-site: site lint-dist
+
+# Lint an existing dist/ without rebuilding it. Split out so the pages workflow,
+# which has just built the site itself, can run the same check before uploading
+# the artifact rather than repeating the command. One definition of the check,
+# two callers.
+lint-dist:
+    # Through uv, not a bare python3. docs/setup.md promises Python comes from
+    # uv with no separate install, and a bare python3 would break that promise
+    # on a machine that has none. The script is stdlib-only, so --no-project is
+    # enough and nothing needs resolving.
+    uv run --no-project --python 3.13 scripts/lint-site-prose.py dist
+
+# What CI's `bundle` job runs: the bundle validates and knowledge.ttl is
+# current. Not the whole suite; the `site-prose` job runs `just lint-site`.
 # Read-only: regenerates to a temp file so the working tree is never touched.
 # Use `just ttl` when you actually want to rewrite knowledge.ttl.
 check:

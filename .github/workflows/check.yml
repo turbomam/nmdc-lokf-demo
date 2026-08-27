@@ -1,12 +1,19 @@
 name: check
 
-# Two things that can silently rot:
+# Three things that can silently rot:
 #   1. the bundle stops validating against the LOKF schema
 #   2. the committed knowledge.ttl drifts from the concepts it was generated from
-# Both are cheap to check and neither is caught by the pages build.
+#   3. banned typography reaches the published site
 #
-# This runs `just check` rather than repeating its commands. An earlier version
-# inlined them, which meant the version pins in the justfile did not apply here:
+# All three are cheap to check. The first two are caught only here. The third is
+# also checked in pages.yml, which gates the artifact upload, because that is the
+# workflow that actually publishes; this one catches it on pull requests, before
+# anything is published at all. Both call `just lint-dist`.
+#
+# Each job runs its `just` recipe rather than repeating the recipe's commands:
+# `bundle` runs `just check`, `site-prose` runs `just lint-site`. An earlier
+# version inlined them, which meant the version pins in the justfile did not
+# apply here:
 # CI resolved whatever lokf release was newest, so a new release could fail
 # Actions or generate different Turtle while the documented local check passed.
 # One definition, one set of pins, no way for local and CI to diverge.
@@ -26,9 +33,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v10.0.1
 
       # just is on PyPI as rust-just, so uv supplies it and it gets pinned the
       # same way everything else here does. No extra action to trust.
       - name: Validate the bundle and check knowledge.ttl is current
         run: uvx --from 'rust-just==1.58.0' just check
+
+  site-prose:
+    # The em dash that shipped in the footer of all 8 pages was invisible to
+    # every check this repository had, because they all look at the bundle or at
+    # pull request bodies. This one looks at what a reader sees.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - uses: astral-sh/setup-uv@v10.0.1
+      - run: npm ci
+      # Runs `just lint-site`, which builds the site and then lints it, rather
+      # than repeating those two commands here. Same reason the bundle job runs
+      # `just check`: one definition, so the recipe and CI cannot drift.
+      - name: Typography in the published prose
+        run: uvx --from 'rust-just==1.58.0' just lint-site

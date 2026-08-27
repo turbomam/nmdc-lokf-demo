@@ -6,7 +6,7 @@ Everything here was run on macOS 15 with the versions listed. Nothing is theoret
 
 | Tool | Version used | Needed for |
 |---|---|---|
-| [uv](https://docs.astral.sh/uv/) | 0.12.5 | The bundle recipes. `uvx` runs the `lokf` toolkit without installing it. Not needed for `setup`, `dev` or `site`, which call only npm |
+| [uv](https://docs.astral.sh/uv/) | 0.12.5 | The bundle recipes, and the Python that `just lint-site` runs on. `uvx` runs the `lokf` toolkit without installing it. Not needed for `setup`, `dev` or `site`, which call only npm |
 | [just](https://github.com/casey/just) | 1.58.0 | The task recipes. Optional; most are a single command, and `just check` is a short bash script |
 | Node | 24.15.0 | The website only. Not needed to work with the bundle |
 | Python | 3.13 | Provided by `uv`; no separate install needed |
@@ -45,7 +45,9 @@ just --list          # every recipe, with a one-line description each
 
 | Recipe | What it does |
 |---|---|
-| `just check` | What CI runs. Validates the bundle and confirms `knowledge.ttl` matches the concepts. **Read-only**; never touches the working tree |
+| `just check` | What CI's `bundle` job runs. Validates the bundle and confirms `knowledge.ttl` matches the concepts. **Read-only**; never touches the working tree |
+| `just lint-site` | What CI's `site-prose` job runs. Builds the site, then fails on em and en dashes in rendered body text, page titles and meta descriptions |
+| `just lint-dist` | The same check without rebuilding. What the pages workflow runs before uploading the artifact |
 | `just ttl` | Regenerates `knowledge.ttl`. The one command that rewrites it |
 | `just rdf` | Prints the bundle as Turtle to stdout |
 | `just serve` | A local SPARQL endpoint and graph explorer, no Node required |
@@ -182,10 +184,32 @@ be dispatched by hand. If a deploy seems to be missing, check
 ## What CI checks
 
 `.github/workflows/check.yml` runs on pushes to `main`, on every pull request, and on manual
-dispatch. A push to a feature branch with no open pull request does not trigger it. It
-validates the bundle
-against the LOKF schema, then regenerates `knowledge.ttl` to a temporary file and fails if the
-result differs from the committed one. A stale `knowledge.ttl` fails the build rather than
-sitting unnoticed.
+dispatch. A push to a feature branch with no open pull request does not trigger it. Two jobs:
 
-`.github/workflows/pages.yml` builds and deploys the site on pushes to `main`.
+`bundle` validates the bundle against the LOKF schema, then regenerates `knowledge.ttl` to a
+temporary file and fails if the result differs from the committed one. A stale `knowledge.ttl`
+fails the build rather than sitting unnoticed. It runs `just check`, so the version pins live in
+one place instead of being repeated here.
+
+`site-prose` builds the site and runs `scripts/lint-site-prose.py` over `dist/`, failing on em
+and en dashes in three regions: rendered body text, the page `<title>`, and the meta description.
+Those are where all three shipped instances were. The report names the region, which is what tells
+you where to fix a finding.
+
+Attributes, inline scripts, client bundles and text assembled at runtime are **not** scanned. An
+earlier version covered the first three, caught nothing real here across ten review rounds, and
+introduced false positives on valid markup, so the scope was reduced to what has actually gone
+wrong. https://github.com/turbomam/nmdc-lokf-demo/issues/56 lists every exclusion and what would
+justify adding coverage back. It exists because an em
+dash shipped in the footer of all 8 pages and nothing in this repository looked at published
+text: Vale checks issue and pull request bodies, and the bundle checks say nothing about prose.
+Linting `dist/` rather than the sources means code comments are out of scope for free, and text
+inherited from the `lokf new` scaffold is caught the same as our own. The job invokes
+`just lint-site`, so the recipe is the single definition and running it locally checks exactly
+what CI checks.
+
+`.github/workflows/pages.yml` builds and deploys the site on pushes to `main`, and runs the same
+prose check between the build and the artifact upload. That is deliberate duplication: `check.yml`
+runs on pull requests and `pages.yml` deploys on pushes, independently of each other, so a failing
+check in one would not have stopped a deploy from the other. Both call `just lint-dist`, so there
+is one definition of the check and two callers.
