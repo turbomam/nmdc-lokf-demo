@@ -46,7 +46,7 @@ just --list          # every recipe, with a one-line description each
 | Recipe | What it does |
 |---|---|
 | `just check` | What CI's `bundle` job runs. Validates the bundle and confirms `knowledge.ttl` matches the concepts. **Read-only**; never touches the working tree |
-| `just lint-site` | What CI's `site-prose` job runs. Builds the site, then fails on em and en dashes anywhere a reader meets them, including attributes and client bundles |
+| `just lint-site` | What CI's `site-prose` job runs. Builds the site, then fails on em and en dashes in rendered body text, page titles and meta descriptions |
 | `just ttl` | Regenerates `knowledge.ttl`. The one command that rewrites it |
 | `just rdf` | Prints the bundle as Turtle to stdout |
 | `just serve` | A local SPARQL endpoint and graph explorer, no Node required |
@@ -191,12 +191,14 @@ fails the build rather than sitting unnoticed. It runs `just check`, so the vers
 one place instead of being repeated here.
 
 `site-prose` builds the site and runs `scripts/lint-site-prose.py` over `dist/`, failing on em
-and en dashes anywhere a reader can meet them. That is wider than the visible text: rendered body
-text, page titles, meta descriptions, reader-facing attributes (`placeholder`, `title`, `alt`,
-`aria-label` and the two `aria-*` variants), inline scripts, and the raw text of the client
-bundles a page references, with JavaScript escapes decoded first so an escaped dash is caught
-like a literal one. Knowing the regions is what tells you where to fix a finding, since the
-report names the region it was found in. It exists because an em
+and en dashes in three regions: rendered body text, the page `<title>`, and the meta description.
+Those are where all three shipped instances were. The report names the region, which is what tells
+you where to fix a finding.
+
+Attributes, inline scripts and client bundles are **not** scanned. An earlier version covered them,
+caught nothing real here, and introduced false positives on valid markup, so the scope was reduced
+to what has actually gone wrong. https://github.com/turbomam/nmdc-lokf-demo/issues/56 records what
+is uncovered. It exists because an em
 dash shipped in the footer of all 8 pages and nothing in this repository looked at published
 text: Vale checks issue and pull request bodies, and the bundle checks say nothing about prose.
 Linting `dist/` rather than the sources means code comments are out of scope for free, and text
