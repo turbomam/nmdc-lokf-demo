@@ -1,9 +1,14 @@
 # What building this bundle taught us
 
-Four things, each learned by getting it wrong first. They are written for someone about to do
+Six things, each learned by getting it wrong first. They are written for someone about to do
 the same thing, not as a record of what happened here.
 
-Every claim below was measured on 2026-08-26 against LOKF 0.5.0.
+Everything here was measured against LOKF 0.5.0, and against linkml 1.11.1 where a section names
+it. The four lessons that came from building the bundle were measured on 2026-08-26. The two
+about dereferencing and about the context IRI came later, from reading what the bundle published,
+and were measured on 2026-08-27 against the deployed site. They say so where the figures appear.
+They sit second and third here because that is where they belong in the argument, not in the
+order they were found.
 
 ## Name concepts where they resolve, or register the prefix first
 
@@ -30,6 +35,111 @@ grep -oE '^<https://[^>]+>' knowledge.ttl | tr -d '<>' | sort -u | while read u;
   echo "$(curl -sS -o /dev/null -w '%{http_code}' -L "$u") $u"
 done
 ```
+
+## Resolving is not the same as dereferencing to the graph
+
+The lesson above is that subject IRIs must resolve. It stops short of the next question, which
+is what a machine gets when it follows one. Measured against the live site on 2026-08-27:
+
+```
+$ curl -sL -H "Accept: text/turtle"         .../datasets/kbase-nmdc-arkin  -> 200 text/html
+$ curl -sL -H "Accept: application/ld+json" .../datasets/kbase-nmdc-arkin  -> 200 text/html
+$ curl -sL -H "Accept: application/rdf+xml" .../datasets/kbase-nmdc-arkin  -> 200 text/html
+```
+
+**GitHub Pages cannot do content negotiation.** Every `Accept` header gets HTML. That is a
+hosting limit rather than anything about LOKF or LinkML, and it is worth separating the two,
+because a reader evaluating the pattern may otherwise assume the demo is showing what the format
+can do.
+
+The HTML does carry machine-readable data, but less than the name suggests, and on fewer pages.
+`Base.astro` emits a `<script type="application/ld+json">` block only when it is given one, and
+only concept pages supply it: the homepage and the graph page embed nothing. On a concept page it
+contains exactly this:
+
+```json
+{"@context": "https://schema.org", "@type": "Dataset", "@id": "...", "name": "...", "description": "..."}
+```
+
+That is search-engine markup. **The typed relations are not in it.** `derivedFrom`, `dependsOn`,
+`about` and the producer `tags`, which are the entire point of the bundle, appear only in the
+whole-graph document at `/graph.jsonld`. So a consumer that dereferences a single concept IRI
+gets a name and, if the concept has one, a description. A consumer that fetches the whole graph
+gets the edges.
+
+`description` really is conditional, and the glossary term shows why it is worth saying. Its
+frontmatter carries `definition` rather than `description`, and the embed only emits
+`description`, so that page dereferences to a bare name:
+
+```json
+{"@context": "https://schema.org", "@type": "DefinedTerm",
+ "@id": "https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant",
+ "name": "BERDL tenant"}
+```
+
+The definition, which is the whole content of a glossary term, is not in the machine-readable
+output at all.
+
+Whether that matters depends on the consumer, and it is a reasonable thing for a static site to
+do. It is not a reasonable thing to leave undocumented in a demo whose claim is that the markdown
+*is* a queryable graph.
+
+What is published, in full:
+
+| Path | Status | Content type | Carries the relations |
+|---|---|---|---|
+| a concept IRI | 200 | `text/html` | no. schema.org `name`, plus `description` when the concept has one |
+| the homepage or `/graph` | 200 | `text/html` | no. neither embeds JSON-LD at all |
+| `/graph.jsonld` | 200 | `application/ld+json` | yes, all 6 concepts and 9 edges |
+| `/graph.json` | 200 | `application/json` | yes, as cytoscape elements |
+| `/knowledge.ttl` | 404 | | not published, though it is committed |
+
+When negotiation is unavailable, the way to advertise a machine-readable representation is a link
+relation. There was none on any page. There is now, and which relation is correct depends on the
+page, which is worth spelling out because getting it wrong is easy and silent.
+
+`rel="alternate"` asserts that the target is another representation of **this** document. That is
+true on the graph page, whose subject is the whole graph:
+
+```html
+<link rel="alternate" type="application/ld+json" href="/nmdc-lokf-demo/graph.jsonld" />
+```
+
+On a concept page it would be false. `/graph.jsonld` is not another serialisation of
+`kbase.nmdc_arkin`; it is a document containing that concept and five others. Declaring it an
+alternate invites a linked-data client to treat five unrelated nodes as representations of the one
+being dereferenced. Concept pages therefore use the relation that is actually true:
+
+```html
+<link rel="describedby" type="application/ld+json" href="/nmdc-lokf-demo/graph.jsonld" />
+```
+
+`describedby` is the registered relation for "the linked document describes this one", which is
+precisely the claim. The alternative would be publishing per-concept RDF, at which point
+`alternate` becomes correct everywhere. That is a larger change and has not been made.
+
+## Pin the context, not just the tools
+
+The published graph declares its `@context` as a URL on a moving branch:
+
+```
+https://raw.githubusercontent.com/nicholsn/lokf/main/lokf.context.jsonld
+```
+
+Two consequences. The meaning of every term in this graph is defined by whatever that file
+contains at the moment a consumer resolves it, so an upstream edit changes this graph's semantics
+with no commit here. And `raw.githubusercontent.com` serves it as `text/plain`, from a host that
+makes no availability promise for this use.
+
+This is the scaffold default: `lokf new` writes that line into `knowledge/index.md`, and the
+installed template carries it verbatim, so every LOKF bundle inherits it.
+
+Worth noticing next to what this repository does elsewhere. Every `uvx` invocation here is
+version-pinned, the 18 `lokf` ones to `0.5.0`, precisely so a new release cannot change behaviour
+silently. The *semantics* of
+the published graph were left pointing at a branch. Pinning the tools and not the vocabulary is a
+gap that is easy to miss, because tooling drift breaks a build and vocabulary drift does not
+break anything at all.
 
 ## Pass `--base-iri` to `lokf new`
 
