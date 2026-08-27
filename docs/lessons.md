@@ -120,26 +120,42 @@ precisely the claim. The alternative would be publishing per-concept RDF, at whi
 
 ## Pin the context, not just the tools
 
-The published graph declares its `@context` as a URL on a moving branch:
+The published graph originally declared its `@context` as a URL on a moving branch, which is the
+`lokf new` scaffold default:
 
 ```
 https://raw.githubusercontent.com/nicholsn/lokf/main/lokf.context.jsonld
 ```
 
-Two consequences. The meaning of every term in this graph is defined by whatever that file
-contains at the moment a consumer resolves it, so an upstream edit changes this graph's semantics
-with no commit here. And `raw.githubusercontent.com` serves it as `text/plain`, from a host that
-makes no availability promise for this use.
+Two consequences. The meaning of every term in the graph was defined by whatever that file
+contained at the moment a consumer resolved it, so an upstream edit would have changed this
+graph's semantics with no commit here and nothing to notice. And `raw.githubusercontent.com`
+serves it as `text/plain`, from a host that makes no availability promise for this use.
 
-This is the scaffold default: `lokf new` writes that line into `knowledge/index.md`, and the
-installed template carries it verbatim, so every LOKF bundle inherits it.
+It now points at a commit:
 
-Worth noticing next to what this repository does elsewhere. Every `uvx` invocation here is
-version-pinned, the 18 `lokf` ones to `0.5.0`, precisely so a new release cannot change behaviour
-silently. The *semantics* of
-the published graph were left pointing at a branch. Pinning the tools and not the vocabulary is a
-gap that is easy to miss, because tooling drift breaks a build and vocabulary drift does not
-break anything at all.
+```
+https://raw.githubusercontent.com/nicholsn/lokf/a723ac0a8ab84b910f55d1f714de980ed49ebe8c/lokf.context.jsonld
+```
+
+`a723ac0a8ab84b910f55d1f714de980ed49ebe8c` is the commit tagged `v0.5.0` upstream, matching the `lokf==0.5.0` pinned everywhere
+else here. A commit rather than the tag, because a tag can be moved and a commit cannot.
+
+**Why this is worth doing even though nothing was broken.** All three of `main`, `v0.5.0` and
+`a723ac0a8ab84b910f55d1f714de980ed49ebe8c` were byte-identical when pinned, and identical to the context inside the installed
+0.5.0 wheel. So the change altered stability and not semantics, which is exactly the point: there
+was nothing to notice, and there would have been nothing to notice on the day it started
+mattering either.
+
+The general lesson is the asymmetry. Tooling drift breaks a build, loudly, on the next run.
+Vocabulary drift breaks nothing: the graph still parses, the site still deploys, the terms just
+quietly mean something else. Every `uvx` invocation here was version-pinned, the 18 `lokf` ones to
+`0.5.0`, and the semantics of the published output were left on a branch. Pin what your data
+means, not only what builds it.
+
+Two things this does not fix. The dependency on one person's repository for the vocabulary's
+availability is unchanged; only its stability improved. And because it is the scaffold default,
+every LOKF bundle starts out this way.
 
 ## Pass `--base-iri` to `lokf new`
 
