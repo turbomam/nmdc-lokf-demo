@@ -11,5 +11,5 @@ tags: [produced-by-nmdc]
 ---
 # Contribution
 NMDC produces and curates these records, in the `nmdc` tenant it maintains. This
-is the authoritative surface for NMDC data, and the starting point for the derived
-products other groups have built.
+is the authoritative surface for NMDC data, and the starting point for the one derived
+product this bundle records: the Arkin Lab's extended omics in the `kbase` tenant.

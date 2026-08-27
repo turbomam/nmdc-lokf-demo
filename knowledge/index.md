@@ -19,9 +19,9 @@ https://github.com/kbaseincubator/BERIL-research-observatory/tree/main/projects/
 
 ## The idea
 
-* [Who built what on NMDC data](explanations/who-built-what-on-nmdc-data.md) - several
-  groups across DOE BER and partners have built on NMDC data; recording who contributed
-  what keeps that ecosystem legible.
+* [Who built what on NMDC data](explanations/who-built-what-on-nmdc-data.md) - work across
+  DOE BER and partners relates to NMDC data in several different ways, and recording which
+  relationship applies keeps that ecosystem legible.
 
 ## Glossary
 
