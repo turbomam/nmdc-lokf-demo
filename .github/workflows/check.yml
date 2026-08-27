@@ -1,14 +1,19 @@
 name: check
 
-# Three things that can silently rot:
+# Four things that can silently rot:
 #   1. the bundle stops validating against the LOKF schema
 #   2. the committed knowledge.ttl drifts from the concepts it was generated from
 #   3. banned typography reaches the published site
+#   4. banned typography sits in repository markdown, which is read on GitHub
+#      and never reaches the site at all
 #
-# All three are cheap to check. The first two are caught only here. The third is
+# All four are cheap to check. One, two and four are caught only here. Three is
 # also checked in pages.yml, which gates the artifact upload, because that is the
 # workflow that actually publishes; this one catches it on pull requests, before
 # anything is published at all. Both call `just lint-dist`.
+#
+# Three and four are separate surfaces, not one rule applied twice: the site
+# check reads built HTML, and repository markdown never reaches the site.
 #
 # Each job runs its `just` recipe rather than repeating the recipe's commands:
 # `bundle` runs `just check`, `site-prose` runs `just lint-site`. An earlier
