@@ -63,9 +63,9 @@ contains exactly this:
 
 That is search-engine markup. **The typed relations are not in it.** `derivedFrom`, `dependsOn`,
 `about` and the producer `tags`, which are the entire point of the bundle, appear only in the
-whole-graph document at `/graph.jsonld`. So a consumer that dereferences a single concept IRI
-gets a name and, if the concept has one, a description. A consumer that fetches the whole graph
-gets the edges.
+whole-graph documents: `/graph.jsonld` and `/knowledge.ttl`. So a consumer that dereferences a
+single concept IRI gets a name and, if the concept has one, a description. A consumer that fetches
+the whole graph gets the edges.
 
 `description` really is conditional, and the glossary term shows why it is worth saying. Its
 frontmatter carries `definition` rather than `description`, and the embed only emits
@@ -92,7 +92,7 @@ What is published, in full:
 | the homepage or `/graph` | 200 | `text/html` | no. neither embeds JSON-LD at all |
 | `/graph.jsonld` | 200 | `application/ld+json` | yes, all 6 concepts and 9 edges |
 | `/graph.json` | 200 | `application/json` | yes, as cytoscape elements |
-| `/knowledge.ttl` | 404 | | not published, though it is committed |
+| `/knowledge.ttl` | 200 | `text/turtle` | yes, the committed projection, served by an endpoint |
 
 When negotiation is unavailable, the way to advertise a machine-readable representation is a link
 relation. There was none on any page. There is now, and which relation is correct depends on the
