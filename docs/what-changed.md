@@ -10,7 +10,7 @@ Anyone diffing against a fresh scaffold will see these.
 
 **Removed**
 
-- `.claude/skills/` — six Claude agent skills the scaffold writes. They reference
+- `.claude/skills/`, six Claude agent skills the scaffold writes. They reference
   `examples/acme-knowledge` thirteen times across three files, and `lokf new` does not create
   that directory, so an agent following them here would run commands against a missing path.
   Reported upstream as https://github.com/nicholsn/lokf/issues/34. Restore them with
@@ -41,8 +41,11 @@ Anyone diffing against a fresh scaffold will see these.
 
 **Added**
 
-- `.github/workflows/check.yml`, which validates the bundle and fails if `knowledge.ttl` has
-  drifted from the concepts.
+- `.github/workflows/check.yml`, with two jobs: `bundle` validates the bundle and fails if
+  `knowledge.ttl` has drifted from the concepts, and `site-prose` builds the site and fails on
+  banned typography in the published prose.
+- `scripts/lint-site-prose.py`, which `site-prose` runs. It exists because an em dash shipped in
+  the footer of all 8 pages and nothing here looked at published text.
 - `docs/`, `queries/`, and a committed `knowledge.ttl`.
 
 ## Who maintains what

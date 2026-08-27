@@ -45,7 +45,8 @@ just --list          # every recipe, with a one-line description each
 
 | Recipe | What it does |
 |---|---|
-| `just check` | What CI runs. Validates the bundle and confirms `knowledge.ttl` matches the concepts. **Read-only**; never touches the working tree |
+| `just check` | What CI's `bundle` job runs. Validates the bundle and confirms `knowledge.ttl` matches the concepts. **Read-only**; never touches the working tree |
+| `just lint-site` | What CI's `site-prose` job runs. Builds the site, then fails on em and en dashes anywhere a reader meets them |
 | `just ttl` | Regenerates `knowledge.ttl`. The one command that rewrites it |
 | `just rdf` | Prints the bundle as Turtle to stdout |
 | `just serve` | A local SPARQL endpoint and graph explorer, no Node required |
