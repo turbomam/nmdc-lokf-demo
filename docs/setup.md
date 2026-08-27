@@ -24,7 +24,7 @@ work on either without installing the other.
 | Layer | What | Required? |
 |---|---|---|
 | Format | Markdown with YAML frontmatter, which is also valid JSON-LD | Yes. This is LOKF |
-| Schema | [LinkML](https://linkml.io/), one schema (`lokf.yaml`) that generates the JSON-LD context, JSON Schema, SHACL and OWL | Yes, but you never invoke it: `lokf` ships the generated artifacts |
+| Schema | [LinkML](https://linkml.io/), one schema (`lokf.yaml`) that generates the JSON-LD context, JSON Schema, SHACL, OWL and SQL DDL | Yes, but you never invoke it. The wheel ships `lokf.yaml`, the JSON-LD context and the Python bindings; the JSON Schema, SHACL, OWL and SQL stay upstream, and `lokf validate` reaches the JSON Schema by running `linkml-validate` against the packaged `lokf.yaml`. See [what-linkml-does.md](what-linkml-does.md) |
 | Toolkit | `lokf` 0.5.0 (Python): `convert`, `validate`, `query`, `serve`, `tables`, `propose`, `vocab` | Yes |
 | Graph | RDF via pyoxigraph; `lokf serve` gives a SPARQL endpoint and a graph explorer from stdlib `http.server` | Yes, for the query recipes |
 | Website | Astro, TypeScript, Node, two remark plugins | **No.** Scaffold output. Deleting it costs only the published site |
@@ -54,20 +54,22 @@ just --list          # every recipe, with a one-line description each
 By hand, without `just`:
 
 ```bash
-# just check   (validate, then confirm knowledge.ttl matches the concepts)
+# just check   (validate, then confirm knowledge.ttl matches the concepts; read-only)
 uvx --from 'lokf[build]==0.5.0' lokf validate knowledge
 tmp=$(mktemp -t knowledge.XXXXXX.ttl)
+trap 'rm -f "$tmp"' EXIT
 uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o "$tmp"
-diff -u knowledge.ttl "$tmp" && echo "knowledge.ttl is current."; rm -f "$tmp"
+diff -u knowledge.ttl "$tmp" || { echo "knowledge.ttl is out of date. Regenerate with: just ttl" >&2; exit 1; }
+echo "knowledge.ttl is current."
 
 # just ttl     (regenerate the committed Turtle in place)
 uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o knowledge.ttl
 
-# just rdf     (other serialisations)
-uvx --from 'lokf==0.5.0' lokf convert knowledge --format jsonld -o knowledge.jsonld
+# just rdf     (project to Turtle on stdout; does not write a file)
+uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl
 
-# just tables  (CSV projection of concepts and relations)
-uvx --from 'lokf[tables]==0.5.0' lokf tables knowledge --format csv --output docs/examples
+# just tables  (CSV projection of concepts and relations, under build/tables)
+uvx --from 'lokf[tables]==0.5.0' lokf tables knowledge --format csv --output build/tables
 
 # just serve   (SPARQL endpoint and graph explorer on localhost)
 uvx --from 'lokf==0.5.0' lokf serve knowledge
@@ -76,7 +78,15 @@ uvx --from 'lokf==0.5.0' lokf serve knowledge
 uvx --from 'lokf==0.5.0' lokf query knowledge "$(cat queries/producer-and-host.rq)"
 ```
 
-The website recipes (`setup`, `dev`, `site`) are plain npm and are listed above.
+The `check` block uses `trap` rather than a trailing `rm` on purpose: a trailing `rm` becomes the
+exit status of the whole sequence, so stale Turtle would exit 0 and pass in automation.
+
+`just tables` writes to `build/tables`, which is untracked scratch space. The CSVs committed under
+`docs/examples/` are documentation fixtures; copy them there deliberately when you mean to update
+them, rather than pointing the recipe at that directory.
+
+The website recipes (`setup`, `dev`, `site`) are plain npm; see
+[Run the website locally](#run-the-website-locally) below.
 
 The `[build]` extra on the first line is required. `lokf validate` fails without it in a
 default install, reported upstream as https://github.com/nicholsn/lokf/issues/33
@@ -133,10 +143,24 @@ rather than field by field:
 OLD=https://turbomam.github.io/nmdc-lokf-demo
 NEW=https://<you>.github.io/<your-repo>
 grep -rl "$OLD" knowledge/ src/ | xargs sed -i '' "s|$OLD|$NEW|g"   # macOS; drop the '' on GNU sed
-sed -i '' "s|/nmdc-lokf-demo|/<your-repo>|g" astro.config.mjs        # both base values
-grep -rn "turbomam" knowledge/ src/ astro.config.mjs                 # expect no output
-just check && just ttl
+sed -i '' "s|https://turbomam.github.io|https://<you>.github.io|" astro.config.mjs  # site
+sed -i '' "s|/nmdc-lokf-demo|/<your-repo>|g" astro.config.mjs                       # both base values
+grep -rn "turbomam.github.io" knowledge/ src/ astro.config.mjs       # expect no output
+just ttl        # concept IRIs changed, so the committed Turtle is now stale
+just check      # only meaningful after the regeneration above
 ```
+
+That sequence was run end to end against a copy of this repository before being documented:
+15 triples move to the new base, 0 remain on the old one, and `just check` passes. Grep for
+`turbomam.github.io` rather than `turbomam`, or you will get one hit from a comment in
+`astro.config.mjs` about an unregistered `w3id.org/turbomam` prefix, which is history and not a
+live IRI.
+
+Three parts of that are easy to get wrong. `astro.config.mjs` sets `site` (the origin) separately
+from `base` (the path), and `base` appears **twice**, once for Astro and once for the
+`remarkLokfLinks` plugin, so a single substitution leaves canonical URLs pointing at the original
+owner. And `just ttl` has to run **before** `just check`, not after: changing the concept IRIs
+makes `knowledge.ttl` stale by definition, so `check` fails until it is regenerated.
 
 The final `grep` is the part worth keeping: a fork that misses even one occurrence publishes a
 graph whose subjects point at this repository, and nothing fails to build, so there is no error
