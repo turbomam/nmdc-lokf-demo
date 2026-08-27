@@ -28,6 +28,13 @@ BANNED = {
 }
 
 STRIP = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.S | re.I)
+# Attributes a reader or a screen reader is shown. Stripping tags throws these
+# away, so a banned character in a placeholder or an aria-label used to pass.
+READER_ATTRS = ("placeholder", "title", "alt", "aria-label", "aria-description", "aria-placeholder")
+ANY_TAG = re.compile(r"<[a-zA-Z][^>]*>")
+SCRIPT_SRC = re.compile(r'<script[^>]*\bsrc=["\']([^"\']+)["\']', re.I)
+INLINE_SCRIPT = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.S | re.I)
+JS_STRING = re.compile(r"""(?<![\\])(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`)""")
 TAG = re.compile(r"<[^>]+>")
 BODY = re.compile(r"<body\b[^>]*>(.*?)</body>", re.S | re.I)
 META = re.compile(r"<meta\b[^>]*>", re.I)
@@ -66,6 +73,45 @@ def head_fields(markup: str) -> list[tuple[str, str]]:
     return out
 
 
+def reader_attributes(markup: str) -> list[tuple[str, str]]:
+    """Text shown to a reader or a screen reader but held in an attribute."""
+    out = []
+    for tag in ANY_TAG.findall(markup):
+        attrs = {k.lower(): (dq or sq) for k, dq, sq in ATTR.findall(tag)}
+        for name in READER_ATTRS:
+            if value := attrs.get(name):
+                out.append((f"@{name}", html.unescape(value)))
+    return out
+
+
+def script_text(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
+    """Strings a script writes into the DOM.
+
+    Astro emits client scripts as separate bundles under `_astro/`, so text a
+    script renders never appears in the HTML and no amount of tag stripping will
+    find it.
+
+    These bundles are scanned as raw text rather than by extracting string
+    literals. Pairing quotes with a regex is not reliable on minified output:
+    scanning left to right, one unbalanced quote earlier in the file shifts
+    every pair after it, and a real string silently stops being visible. That
+    was happening here, and it produced a linter that reported clean on a bundle
+    with a banned character in it. Minified output carries no comments, so a
+    banned character in one of these files is in a string, and searching the
+    text directly has no pairing problem to get wrong.
+    """
+    out = []
+    for block in INLINE_SCRIPT.findall(markup):
+        out.append(("inline script", block))
+    for src in SCRIPT_SRC.findall(markup):
+        name = src.split("/")[-1]
+        for candidate in root.rglob(name):
+            if candidate.is_file():
+                out.append((f"script {candidate.name}", candidate.read_text(encoding="utf-8", errors="replace")))
+                break
+    return out
+
+
 def context(text: str, index: int, width: int = 44) -> str:
     lo, hi = max(0, index - width), min(len(text), index + width)
     return " ".join(text[lo:hi].split())
@@ -85,7 +131,12 @@ def main(argv: list[str]) -> int:
     findings = []
     for page in pages:
         markup = page.read_text(encoding="utf-8", errors="replace")
-        regions = [("body", body_text(markup))] + head_fields(markup)
+        regions = (
+            [("body", body_text(markup))]
+            + head_fields(markup)
+            + reader_attributes(markup)
+            + script_text(root, markup)
+        )
         for where, text in regions:
             for char, (name, instead) in BANNED.items():
                 for m in re.finditer(re.escape(char), text):
