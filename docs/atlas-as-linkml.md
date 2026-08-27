@@ -112,8 +112,7 @@ enforcing at-least-one-item would still have seen a null and complained about it
 that normalises empty and null to absent before validating produces exactly this.
 
 So `linkml-validate` is not applying a different rule. It is validating a **transformed**
-document, and the ordinary presence check then fires. Measured independently by two sessions on
-linkml 1.11.1.
+document, and the ordinary presence check then fires.
 
 That distinction changes what a reader should do. "The two tools disagree" invites picking one.
 "Empty and null are normalised to absent on one path only" gives the actual exposure: any slot
@@ -121,10 +120,10 @@ that is `multivalued`, `required`, and legitimately empty behaves differently de
 artifact a consumer validates against. `linked_conflicts: []` in the atlas is exactly that
 shape, which is how this surfaced.
 
-On linkml 1.11.1, measured independently by two sessions. **Not reported upstream.** Seven
-searches of the `linkml/linkml` tracker returned nothing, but absence of a hit is not proof
-of absence, and filing there is a decision for the repository's maintainers to make rather
-than a byproduct of this experiment.
+These measurements were taken on linkml 1.11.1, independently by two sessions. **The behaviour
+has not been reported upstream.** Seven searches of the `linkml/linkml` tracker returned
+nothing, but absence of a hit is not proof of absence, and filing there is a decision for that
+repository's maintainers rather than a byproduct of this experiment.
 
 The practical consequence for a translation is unchanged and still the thing to plan for: copying
 `REQUIRED_*` sets into `required: true` **tightens** the rules as `linkml-validate` applies them,

@@ -79,8 +79,8 @@ A corollary seen elsewhere: **check what a rule actually does before copying it.
 presence check to `required: true` on a multivalued slot silently tightens the rules, because
 `linkml-validate` rejects an empty list. Not because the two words mean different things: the
 LinkML metamodel defines `required` as presence too, and the generated JSON Schema accepts the
-empty list. `linkml-validate` normalises an empty collection, and a null, to absent before
-validating, so the ordinary presence check fires on a document the schema itself would pass.
+empty list. `linkml-validate` normalises empty collections and nulls to absent before validating, so the
+ordinary presence check fires on a document the schema itself would pass.
 
 The exposure is narrower than "two tools disagree" and more useful to know: any slot that is
 `multivalued`, `required`, and legitimately empty behaves differently depending on which
