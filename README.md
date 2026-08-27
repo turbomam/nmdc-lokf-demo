@@ -89,6 +89,46 @@ which three are post-processed afterwards and which two of them ship in the inst
 the generated schema rejecting a real authoring mistake; and where LinkML stops and LOKF's own
 code starts.
 
+## What exercising it turned up
+
+Building against a real LinkML-defined format surfaced something neither the format nor the data
+shows on its own: **`linkml-validate` gives different verdicts for the same data depending on the
+serialisation it is loaded from.**
+
+```bash
+cd docs/examples/loader-normalization
+for f in empty.yaml empty.json null.yaml null.json; do
+  printf '%-12s ' "$f"
+  uvx --from 'linkml==1.11.1' linkml-validate -s s.yaml -C T "$f" 2>&1 | grep -E 'No issues|ERROR'
+done
+```
+
+```
+empty.yaml   No issues found
+empty.json   [ERROR] [empty.json/0] 'tags' is a required property in /
+null.yaml    [ERROR] [null.yaml/0] None is not of type 'array' in /tags
+null.json    [ERROR] [null.json/0] 'tags' is a required property in /
+```
+
+`empty.yaml` is `tags: []` and `empty.json` is `{"tags": []}`. The same two values, `[]` and
+`null`, each written both ways.
+
+Same schema, same required multivalued slot, same version. As YAML the empty list is accepted;
+as JSON it is reported missing. LinkML's JSON loader runs `json_clean`, which strips empty
+collections and nulls, while the YAML loader passes `yaml.safe_load_all` output through
+unchanged. The presence check then fires on a document that no longer contains the key.
+
+`lokf validate` inherits the JSON behaviour, because it writes a temporary `.bundle.json` and
+validates that. So a bundle author meets this without ever writing JSON. Any slot that is
+`multivalued`, `required` and legitimately empty is exposed.
+
+The four files reproduce it: [docs/examples/loader-normalization/](docs/examples/loader-normalization/).
+Fuller treatment, including what it means for translating an existing validator to a schema, in
+[docs/lessons.md](docs/lessons.md) and [docs/atlas-as-linkml.md](docs/atlas-as-linkml.md).
+
+Not reported upstream by this work. Seven searches of the `linkml/linkml` tracker returned no
+matching issue, which is not proof there is none.
+
 ## For BERIL colleagues
 
 [docs/atlas-as-linkml.md](docs/atlas-as-linkml.md): a slice of the atlas's 1,466 lines of Python
@@ -98,10 +138,11 @@ rather than a port.
 
 ## What this taught us
 
-[docs/lessons.md](docs/lessons.md): four things learned by getting them wrong first, written for
-someone about to build their own bundle. Dead subject IRIs that nothing checks, the silent
-half-migration when `--base-iri` is skipped, projection not enforcing what validation enforces,
-and why the frontmatter mapping is the real work.
+[docs/lessons.md](docs/lessons.md): six things learned by getting them wrong first, written for
+someone about to build their own bundle. Dead subject IRIs that nothing checks, what a concept
+IRI actually dereferences to once it does resolve, the published graph's context pointing at a
+moving branch, the silent half-migration when `--base-iri` is skipped, projection not enforcing
+what validation enforces, and why the frontmatter mapping is the real work.
 
 ## What it's built on, and what else exists
 
