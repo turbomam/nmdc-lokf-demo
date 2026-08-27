@@ -108,12 +108,21 @@ and why the frontmatter mapping is the real work.
 [docs/landscape.md](docs/landscape.md) covers the stack (Python required, Astro optional) and how this compares
 to the four knowledge aggregations already in the BERIL Research Observatory.
 
+## Build, run and publish
+
+[docs/setup.md](docs/setup.md): prerequisites and versions, every `just` recipe, running the
+site locally, **switching GitHub Pages on** (a fork gets the workflow but no site until you
+do), and what CI checks.
+
+[docs/what-changed.md](docs/what-changed.md): how this differs from a fresh `lokf new`, who
+maintains which part, and the four related repositories with what each owns.
+
 ## Reproduce
 
 ```bash
-uvx --from 'lokf[build]' lokf validate knowledge     # -> OK, 6 concepts
-uvx --from lokf lokf convert knowledge --format ttl -o knowledge.ttl
-uvx --from lokf lokf query knowledge "$(cat queries/producer-and-host.rq)"
+uvx --from 'lokf[build]==0.5.0' lokf validate knowledge     # -> OK, 6 concepts
+uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o knowledge.ttl
+uvx --from 'lokf==0.5.0' lokf query knowledge "$(cat queries/producer-and-host.rq)"
 ```
 
 The `[build]` extra on the first line is required: `lokf validate` alone fails in a default
