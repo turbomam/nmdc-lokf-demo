@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v10.0.1
 
       # just is on PyPI as rust-just, so uv supplies it and it gets pinned the
       # same way everything else here does. No extra action to trust.
@@ -51,7 +51,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v10.0.1
       - run: npm ci
       # Runs `just lint-site`, which builds the site and then lints it, rather
       # than repeating those two commands here. Same reason the bundle job runs
