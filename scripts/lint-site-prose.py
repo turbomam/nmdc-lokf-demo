@@ -11,6 +11,14 @@ produce it. That way code comments are out of scope for free (they are not
 rendered), and anything arriving from the scaffold, from `knowledge/`, or from a
 template update is caught the same way.
 
+Parsing goes through `html.parser`, not regular expressions. Four separate bugs
+in this file came from matching markup with patterns: a body scan that reached
+into the head and double-counted the title, a meta matcher that assumed
+attribute order, a value group that could not distinguish quote styles, and a
+tag matcher that stopped at the first `>` even inside a quoted value, so
+`title="A > B"` with a banned character before the `>` reported clean. A parser
+does not have those failure modes and they were not going to stop arriving.
+
 Usage:  python3 scripts/lint-site-prose.py [dist_dir]
 Exit:   0 clean, 1 findings, 2 nothing to check
 """
@@ -19,6 +27,7 @@ import html
 import pathlib
 import re
 import sys
+from html.parser import HTMLParser
 
 # Character, name, what to use instead. Keep the reason in the message: the
 # person who trips this is usually not the person who wrote the text.
@@ -27,66 +36,94 @@ BANNED = {
     "–": ("en dash", '"to" for ranges, or a hyphen'),
 }
 
-STRIP = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.S | re.I)
-# Attributes a reader or a screen reader is shown. Stripping tags throws these
+# Attributes a reader or a screen reader is shown. Tag stripping throws these
 # away, so a banned character in a placeholder or an aria-label used to pass.
-READER_ATTRS = ("placeholder", "title", "alt", "aria-label", "aria-description", "aria-placeholder")
-ANY_TAG = re.compile(r"<[a-zA-Z][^>]*>")
-SCRIPT_SRC = re.compile(r'<script[^>]*\bsrc=["\']([^"\']+)["\']', re.I)
-INLINE_SCRIPT = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.S | re.I)
+READER_ATTRS = (
+    "placeholder",
+    "title",
+    "alt",
+    "aria-label",
+    "aria-description",
+    "aria-placeholder",
+)
+
+# `<script>` types that hold data rather than code. They never execute and never
+# write to the DOM, and their contents are already covered as body text or as a
+# meta description, so scanning them reports the same character two or three
+# times. The JSON-LD block this site embeds on every concept page is exactly
+# this case.
+DATA_SCRIPT_TYPES = {
+    "application/ld+json",
+    "application/json",
+    "importmap",
+    "speculationrules",
+    "text/template",
+    "text/x-template",
+}
+
 JS_ESCAPE = re.compile(
     r"(\\*)\\(?:u\{([0-9a-fA-F]{1,6})\}|u([0-9a-fA-F]{4})|x([0-9a-fA-F]{2}))"
 )
-TAG = re.compile(r"<[^>]+>")
-BODY = re.compile(r"<body\b[^>]*>(.*?)</body>", re.S | re.I)
-META = re.compile(r"<meta\b[^>]*>", re.I)
-# One alternation per quote style. re.findall returns "" rather than None for an
-# unmatched group, so the two value groups cannot be told apart by an is-None
-# test. Callers take `dq or sq`, whichever is non-empty.
-ATTR = re.compile(r"""([a-zA-Z-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
 
 
-def body_text(markup: str) -> str:
-    """Rendered text only.
+class PageReader(HTMLParser):
+    """Collect the regions of a built page that a reader can meet."""
 
-    Scan the body element rather than the whole document. Running this over the
-    full markup pulls in head content, so a title finding gets reported twice,
-    once here and once by head_fields, and the duplicate is labelled with the
-    wrong region.
-    """
-    m = BODY.search(markup)
-    region = m.group(1) if m else markup
-    return html.unescape(TAG.sub(" ", STRIP.sub(" ", region)))
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.body: list[str] = []
+        self.title = ""
+        self.meta_descriptions: list[str] = []
+        self.attributes: list[tuple[str, str]] = []
+        self.inline_scripts: list[str] = []
+        self.script_srcs: list[str] = []
+        self._depth_body = 0
+        self._in_title = False
+        self._skip = 0
+        self._script_is_code = False
 
-
-def head_fields(markup: str) -> list[tuple[str, str]]:
-    """Title and meta description: read by people, invisible to a body scan."""
-    out = []
-    if m := re.search(r"<title[^>]*>(.*?)</title>", markup, re.S | re.I):
-        out.append(("<title>", html.unescape(TAG.sub("", m.group(1)))))
-    # Match the tag, then read its attributes, rather than assuming name comes
-    # before content. A build is free to emit them in either order, or to put
-    # other attributes between them.
-    for tag in META.findall(markup):
-        attrs = {k.lower(): (dq or sq) for k, dq, sq in ATTR.findall(tag)}
-        if attrs.get("name", "").lower() == "description" and "content" in attrs:
-            out.append(("meta description", html.unescape(attrs["content"])))
-    return out
-
-
-def reader_attributes(markup: str) -> list[tuple[str, str]]:
-    """Text shown to a reader or a screen reader but held in an attribute."""
-    out = []
-    for tag in ANY_TAG.findall(markup):
-        attrs = {k.lower(): (dq or sq) for k, dq, sq in ATTR.findall(tag)}
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        a = {k.lower(): (v or "") for k, v in attrs}
+        if tag == "body":
+            self._depth_body += 1
+        elif tag == "title":
+            self._in_title = True
+        elif tag == "meta" and a.get("name", "").lower() == "description":
+            self.meta_descriptions.append(a.get("content", ""))
+        elif tag == "script":
+            if src := a.get("src"):
+                self.script_srcs.append(src)
+                self._script_is_code = False
+            else:
+                self._script_is_code = a.get("type", "").lower() not in DATA_SCRIPT_TYPES
+            self._skip += 1
+        elif tag == "style":
+            self._skip += 1
         for name in READER_ATTRS:
-            if value := attrs.get(name):
-                out.append((f"@{name}", html.unescape(value)))
-    return out
+            if value := a.get(name):
+                self.attributes.append((f"@{name}", value))
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "body":
+            self._depth_body = max(0, self._depth_body - 1)
+        elif tag == "title":
+            self._in_title = False
+        elif tag in ("script", "style"):
+            self._skip = max(0, self._skip - 1)
+            self._script_is_code = False
+
+    def handle_data(self, data: str) -> None:
+        if self._in_title:
+            self.title += data
+        elif self._skip:
+            if self._script_is_code:
+                self.inline_scripts.append(data)
+        elif self._depth_body:
+            self.body.append(data)
 
 
 def decode_js_escapes(text: str) -> str:
-    """Turn active \\uXXXX and \\xXX escapes into the characters they denote.
+    r"""Turn active \uXXXX and \xXX escapes into the characters they denote.
 
     This build emits non-ASCII literally, measured end to end: an em dash placed
     in a src/ string arrives in the bundle as the character, not as an escape.
@@ -98,14 +135,14 @@ def decode_js_escapes(text: str) -> str:
     Only escapes preceded by an even number of backslashes are active. Where the
     backslash is itself escaped, the text is literal and stays literal.
 
-    Widths are exact, and getting that wrong is silent. An unbraced ``\\u`` takes
-    exactly four hex digits, so JavaScript reads ``"\\u2014and"`` as an em dash
+    Widths are exact, and getting that wrong is silent. An unbraced ``\u`` takes
+    exactly four hex digits, so JavaScript reads ``"—and"`` as an em dash
     followed by ``and``. A pattern allowing up to six consumed ``2014a`` as one
     code point, produced a different character, and missed the dash entirely.
-    Braced ``\\u{...}`` takes one to six; ``\\x`` takes exactly two.
+    Braced ``\u{...}`` takes one to six; ``\x`` takes exactly two.
     """
 
-    def sub(m: re.Match[str]) -> str:
+    def sub(m: "re.Match[str]") -> str:
         prefix = m.group(1)
         if len(prefix) % 2:
             return m.group(0)
@@ -115,32 +152,44 @@ def decode_js_escapes(text: str) -> str:
     return JS_ESCAPE.sub(sub, text)
 
 
-def script_text(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
-    """Strings a script writes into the DOM.
+def bundle_text(root: pathlib.Path, srcs: list[str]) -> list[tuple[str, str]]:
+    """Raw text of the client bundles a page references.
 
-    Astro emits client scripts as separate bundles under `_astro/`, so text a
+    Astro emits client scripts as separate files under `_astro/`, so text a
     script renders never appears in the HTML and no amount of tag stripping will
     find it.
 
-    These bundles are scanned as raw text rather than by extracting string
-    literals. Pairing quotes with a regex is not reliable on minified output:
-    scanning left to right, one unbalanced quote earlier in the file shifts
-    every pair after it, and a real string silently stops being visible. That
-    was happening here, and it produced a linter that reported clean on a bundle
-    with a banned character in it. Minified output carries no comments, so a
-    banned character in one of these files is in a string, and searching the
-    text directly has no pairing problem to get wrong.
+    These are scanned as raw text rather than by extracting string literals.
+    Pairing quotes with a regex is not reliable on minified output: scanning left
+    to right, one unbalanced quote earlier in the file shifts every pair after it
+    and a real string silently stops being visible. That was happening here, and
+    it produced a linter that reported clean on a bundle with a banned character
+    in it. Minified output carries no comments, so a banned character in one of
+    these files is in a string, and searching the text directly has no pairing
+    problem to get wrong.
     """
     out = []
-    for block in INLINE_SCRIPT.findall(markup):
-        out.append(("inline script", decode_js_escapes(block)))
-    for src in SCRIPT_SRC.findall(markup):
+    for src in srcs:
         name = src.split("/")[-1]
         for candidate in root.rglob(name):
             if candidate.is_file():
                 raw = candidate.read_text(encoding="utf-8", errors="replace")
                 out.append((f"script {candidate.name}", decode_js_escapes(raw)))
                 break
+    return out
+
+
+def regions(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
+    reader = PageReader()
+    reader.feed(markup)
+    reader.close()
+    out: list[tuple[str, str]] = [("body", " ".join(reader.body))]
+    if reader.title.strip():
+        out.append(("<title>", reader.title))
+    out += [("meta description", d) for d in reader.meta_descriptions]
+    out += [(where, html.unescape(value)) for where, value in reader.attributes]
+    out += [("inline script", decode_js_escapes(s)) for s in reader.inline_scripts]
+    out += bundle_text(root, reader.script_srcs)
     return out
 
 
@@ -163,13 +212,7 @@ def main(argv: list[str]) -> int:
     findings = []
     for page in pages:
         markup = page.read_text(encoding="utf-8", errors="replace")
-        regions = (
-            [("body", body_text(markup))]
-            + head_fields(markup)
-            + reader_attributes(markup)
-            + script_text(root, markup)
-        )
-        for where, text in regions:
+        for where, text in regions(root, markup):
             for char, (name, instead) in BANNED.items():
                 for m in re.finditer(re.escape(char), text):
                     findings.append((page, where, name, instead, context(text, m.start())))
