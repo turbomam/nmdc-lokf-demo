@@ -73,7 +73,7 @@ with no separate file:
 <.../datasets/kbase-nmdc-arkin> a schema:Dataset ;
     prov:wasDerivedFrom <.../datasets/nmdc-metadata> ;
     dcterms:requires <.../glossary/berdl-tenant> ;
-    schema:about <.../explanations/provenance-is-not-in-the-name> ;
+    schema:about <.../explanations/who-built-what-on-nmdc-data> ;
     schema:name "kbase.nmdc_arkin" .
 ```
 

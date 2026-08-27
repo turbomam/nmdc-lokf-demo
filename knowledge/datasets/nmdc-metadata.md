@@ -2,7 +2,7 @@
 type: Dataset
 id: https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-metadata
 title: nmdc.metadata
-description: Study, biosample, and omics records produced by NMDC, and the source most of the derived work here builds on.
+description: Study, biosample, and omics records produced by NMDC, and the source kbase.nmdc_arkin is built from.
 timestamp: 2026-08-26T00:00:00Z
 status: draft
 dependsOn: [ https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant ]

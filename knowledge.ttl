@@ -56,7 +56,7 @@ than a claim of authorship.""" .
     schema1:about <https://turbomam.github.io/nmdc-lokf-demo/explanations/who-built-what-on-nmdc-data> ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "Study, biosample, and omics records produced by NMDC, and the source most of the derived work here builds on." ;
+    schema1:description "Study, biosample, and omics records produced by NMDC, and the source kbase.nmdc_arkin is built from." ;
     schema1:keywords "produced-by-nmdc" ;
     schema1:name "nmdc.metadata" ;
     schema1:text """# Contribution

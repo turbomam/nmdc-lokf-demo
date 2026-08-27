@@ -30,8 +30,8 @@ https://github.com/kbaseincubator/BERIL-research-observatory/tree/main/projects/
 
 ## Datasets
 
-* [nmdc.metadata](datasets/nmdc-metadata.md) - produced by NMDC, and the source the derived
-  work builds on.
+* [nmdc.metadata](datasets/nmdc-metadata.md) - produced by NMDC, and the source
+  `kbase.nmdc_arkin` is built from.
 * [kbase.nmdc_arkin](datasets/kbase-nmdc-arkin.md) - the Arkin Lab at LBNL added embeddings,
   traits and reconciled annotations to NMDC omics.
 * [nmdc.ncbi_biosamples](datasets/nmdc-ncbi-biosamples.md) - NCBI records, hosted alongside
