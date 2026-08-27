@@ -50,10 +50,29 @@ jobs:
       # offending line so the failure explains itself.
       - name: No em or en dashes in tracked markdown
         run: |
-          if git grep -n -P '\x{2014}|\x{2013}' -- '*.md'; then
-            echo "::error::em or en dash in tracked markdown; use commas, periods, colons or parentheses"
-            exit 1
-          fi
+          # Status handled explicitly rather than with `if git grep ...`. That
+          # construct reads every non-zero exit as "no match", so a git built
+          # without PCRE, or any other failure, would print a fatal error and
+          # pass the step, silently disabling the check. Fail-open is the
+          # failure mode this repository has spent the day removing.
+          set +e
+          out=$(git grep -n -P '\x{2014}|\x{2013}' -- '*.md')
+          status=$?
+          set -e
+          case "$status" in
+            0)
+              echo "$out"
+              echo "::error::em or en dash in tracked markdown; use commas, periods, colons or parentheses"
+              exit 1
+              ;;
+            1)
+              echo "No em or en dashes in tracked markdown."
+              ;;
+            *)
+              echo "::error::git grep failed with status $status; the dash check did not run"
+              exit 1
+              ;;
+          esac
 
   site-prose:
     # The em dash that shipped in the footer of all 8 pages was invisible to
