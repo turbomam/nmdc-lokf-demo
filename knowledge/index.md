@@ -4,7 +4,7 @@ okf_version: "0.1"
 base_iri: https://turbomam.github.io/nmdc-lokf-demo/
 context: https://raw.githubusercontent.com/nicholsn/lokf/main/lokf.context.jsonld
 title: NMDC LOKF Demo
-description: Six concepts, four of them data resources, described as linked data to test what LOKF adds over prose.
+description: Six concepts recording who contributed which resource in a set of NMDC-related datasets, described as linked data to test what LOKF adds over prose.
 license: https://www.gnu.org/licenses/agpl-3.0.html
 ---
 
@@ -19,9 +19,9 @@ https://github.com/kbaseincubator/BERIL-research-observatory/tree/main/projects/
 
 ## The idea
 
-* [Provenance is not in the name](explanations/provenance-is-not-in-the-name.md) - a
-  database name carries the host tenant; who produced the records is a second, independent
-  axis.
+* [Who built what on NMDC data](explanations/who-built-what-on-nmdc-data.md) - work across
+  DOE BER and partners relates to NMDC data in several different ways, and recording which
+  relationship applies keeps that ecosystem legible.
 
 ## Glossary
 
@@ -30,8 +30,11 @@ https://github.com/kbaseincubator/BERIL-research-observatory/tree/main/projects/
 
 ## Datasets
 
-* [nmdc.metadata](datasets/nmdc-metadata.md) - produced by NMDC.
-* [kbase.nmdc_arkin](datasets/kbase-nmdc-arkin.md) - produced by the Arkin Lab at LBNL,
-  derived from NMDC omics.
-* [nmdc.ncbi_biosamples](datasets/nmdc-ncbi-biosamples.md) - produced by NCBI.
-* [kbase.nmdc_neon](datasets/kbase-nmdc-neon.md) - produced by the NSF NEON program.
+* [nmdc.metadata](datasets/nmdc-metadata.md) - produced by NMDC, and the source
+  `kbase.nmdc_arkin` is built from.
+* [kbase.nmdc_arkin](datasets/kbase-nmdc-arkin.md) - the Arkin Lab at LBNL added embeddings,
+  traits and reconciled annotations to NMDC omics.
+* [nmdc.ncbi_biosamples](datasets/nmdc-ncbi-biosamples.md) - NCBI records, hosted alongside
+  NMDC's own.
+* [kbase.nmdc_neon](datasets/kbase-nmdc-neon.md) - NSF NEON observations, processed with
+  NMDC-style workflows.

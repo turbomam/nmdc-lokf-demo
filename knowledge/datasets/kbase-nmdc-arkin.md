@@ -2,14 +2,17 @@
 type: Dataset
 id: https://turbomam.github.io/nmdc-lokf-demo/datasets/kbase-nmdc-arkin
 title: kbase.nmdc_arkin
-description: Omics records originating with NMDC, which the Arkin Lab at LBNL has extended with vector embeddings, organism trait assignments, and a reconciled annotation layer.
+description: The Arkin Lab at LBNL has extended NMDC omics with vector embeddings, organism trait assignments, and a reconciled annotation layer.
 timestamp: 2026-08-26T00:00:00Z
 status: draft
 derivedFrom: [ https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-metadata ]
 dependsOn: [ https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant ]
-about: [ https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name ]
+about: [ https://turbomam.github.io/nmdc-lokf-demo/explanations/who-built-what-on-nmdc-data ]
 tags: [produced-by-arkin-lab]
 ---
-# Provenance
-Producer: the Arkin Lab at LBNL, working from NMDC omics. Host tenant: `kbase`.
+# Contribution
+The Arkin Lab at LBNL built this from NMDC omics, adding vector embeddings,
+organism trait assignments and a reconciled annotation layer. It is hosted in the
+`kbase` tenant, where NMDC-derived work lives.
+
 Snapshot currency 2026-05-27 as recorded by the audit.

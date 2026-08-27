@@ -2,13 +2,14 @@
 type: Dataset
 id: https://turbomam.github.io/nmdc-lokf-demo/datasets/nmdc-metadata
 title: nmdc.metadata
-description: Study, biosample, and omics records that NMDC itself produces and treats as authoritative.
+description: Study, biosample, and omics records produced by NMDC, and the source kbase.nmdc_arkin is built from.
 timestamp: 2026-08-26T00:00:00Z
 status: draft
 dependsOn: [ https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant ]
-about: [ https://turbomam.github.io/nmdc-lokf-demo/explanations/provenance-is-not-in-the-name ]
+about: [ https://turbomam.github.io/nmdc-lokf-demo/explanations/who-built-what-on-nmdc-data ]
 tags: [produced-by-nmdc]
 ---
-# Provenance
-Producer: NMDC. Host tenant: `nmdc`. Both axes agree here, which is what
-makes this the authoritative surface for NMDC records.
+# Contribution
+NMDC produces and curates these records, in the `nmdc` tenant it maintains. This
+is the authoritative surface for NMDC data, and the starting point for the one derived
+product this bundle records: the Arkin Lab's extended omics in the `kbase` tenant.

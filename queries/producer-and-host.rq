@@ -1,6 +1,6 @@
-# The two axes, side by side.
-# Host tenant is carried by the name, so it can be read off the string.
-# Producer cannot be, so it is read off the graph.
+# Who contributed each resource, and what it was built from.
+# Hosting is carried by the name, so it can be read off the string.
+# Contribution cannot be, so it is read off the graph.
 PREFIX schema: <http://schema.org/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 SELECT ?name ?hostTenant ?producer ?derivedFrom WHERE {
