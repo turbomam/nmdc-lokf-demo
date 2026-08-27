@@ -54,10 +54,29 @@ just --list          # every recipe, with a one-line description each
 By hand, without `just`:
 
 ```bash
+# just check   (validate, then confirm knowledge.ttl matches the concepts)
 uvx --from 'lokf[build]==0.5.0' lokf validate knowledge
-uvx --from 'lokf==0.5.0'        lokf convert knowledge --format ttl -o knowledge.ttl
-uvx --from 'lokf==0.5.0'        lokf query   knowledge "$(cat queries/producer-and-host.rq)"
+tmp=$(mktemp -t knowledge.XXXXXX.ttl)
+uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o "$tmp"
+diff -u knowledge.ttl "$tmp" && echo "knowledge.ttl is current."; rm -f "$tmp"
+
+# just ttl     (regenerate the committed Turtle in place)
+uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o knowledge.ttl
+
+# just rdf     (other serialisations)
+uvx --from 'lokf==0.5.0' lokf convert knowledge --format jsonld -o knowledge.jsonld
+
+# just tables  (CSV projection of concepts and relations)
+uvx --from 'lokf[tables]==0.5.0' lokf tables knowledge --format csv --output docs/examples
+
+# just serve   (SPARQL endpoint and graph explorer on localhost)
+uvx --from 'lokf==0.5.0' lokf serve knowledge
+
+# not a recipe, but the thing you probably want next
+uvx --from 'lokf==0.5.0' lokf query knowledge "$(cat queries/producer-and-host.rq)"
 ```
+
+The website recipes (`setup`, `dev`, `site`) are plain npm and are listed above.
 
 The `[build]` extra on the first line is required. `lokf validate` fails without it in a
 default install, reported upstream as https://github.com/nicholsn/lokf/issues/33
@@ -102,10 +121,29 @@ is no branch to configure.
 **Set your own base IRI before publishing.** Concepts here are named at
 `https://turbomam.github.io/nmdc-lokf-demo/` so that every subject IRI resolves to its own
 page. A fork that keeps those names will publish a graph whose subjects point at this
-repository. Change `base_iri` in `knowledge/index.md`, `site` and `base` in
-`astro.config.mjs`, `BASE_IRI` in `src/lib/lokf.ts`, and the `id` on each concept. Scaffolding
-fresh with `lokf new --base-iri <url>` sets all of these at once, which is the easier path;
-see [lessons.md](lessons.md).
+repository.
+
+Listing the fields to edit is not enough, because the base appears inside concept bodies too:
+`dependsOn`, `about` and `derivedFrom` all carry absolute IRIs under the old base, and
+`astro.config.mjs` sets `base` **twice**, once for Astro and once for the `remarkLokfLinks`
+plugin. As of this commit the string occurs 17 times across 8 files. Replace it everywhere
+rather than field by field:
+
+```bash
+OLD=https://turbomam.github.io/nmdc-lokf-demo
+NEW=https://<you>.github.io/<your-repo>
+grep -rl "$OLD" knowledge/ src/ | xargs sed -i '' "s|$OLD|$NEW|g"   # macOS; drop the '' on GNU sed
+sed -i '' "s|/nmdc-lokf-demo|/<your-repo>|g" astro.config.mjs        # both base values
+grep -rn "turbomam" knowledge/ src/ astro.config.mjs                 # expect no output
+just check && just ttl
+```
+
+The final `grep` is the part worth keeping: a fork that misses even one occurrence publishes a
+graph whose subjects point at this repository, and nothing fails to build, so there is no error
+to notice.
+
+**Scaffolding fresh with `lokf new --base-iri <url>` avoids all of this** and is the easier
+path; see [lessons.md](lessons.md). Fork only if you want this bundle's content.
 
 **One operational note.** During the GitHub Actions incident on 2026-08-26, push-triggered
 workflow runs were silently dropped: merges to `main` did not fire `pages.yml` and it had to
