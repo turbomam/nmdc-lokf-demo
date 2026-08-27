@@ -89,6 +89,37 @@ which three are post-processed afterwards and which two of them ship in the inst
 the generated schema rejecting a real authoring mistake; and where LinkML stops and LOKF's own
 code starts.
 
+## What exercising it turned up
+
+Building against a real LinkML-defined format surfaced something neither the format nor the data
+shows on its own: **`linkml-validate` gives different verdicts for the same data depending on the
+serialisation it is loaded from.**
+
+```
+$ linkml-validate -s s.yaml -C T <file>          # linkml 1.11.1
+
+  empty.yaml   tags: []          No issues found
+  empty.json   {"tags": []}      [ERROR] 'tags' is a required property in /
+  null.yaml    tags: null        [ERROR] None is not of type 'array' in /tags
+  null.json    {"tags": null}    [ERROR] 'tags' is a required property in /
+```
+
+Same schema, same required multivalued slot, same version. As YAML the empty list is accepted;
+as JSON it is reported missing. LinkML's JSON loader runs `json_clean`, which strips empty
+collections and nulls, while the YAML loader passes `yaml.safe_load_all` output through
+unchanged. The presence check then fires on a document that no longer contains the key.
+
+`lokf validate` inherits the JSON behaviour, because it writes a temporary `.bundle.json` and
+validates that. So a bundle author meets this without ever writing JSON. Any slot that is
+`multivalued`, `required` and legitimately empty is exposed.
+
+The four files reproduce it: [docs/examples/loader-normalization/](docs/examples/loader-normalization/).
+Fuller treatment, including what it means for translating an existing validator to a schema, in
+[docs/lessons.md](docs/lessons.md) and [docs/atlas-as-linkml.md](docs/atlas-as-linkml.md).
+
+Not reported upstream by this work. Seven searches of the `linkml/linkml` tracker returned no
+matching issue, which is not proof there is none.
+
 ## For BERIL colleagues
 
 [docs/atlas-as-linkml.md](docs/atlas-as-linkml.md): a slice of the atlas's 1,466 lines of Python
