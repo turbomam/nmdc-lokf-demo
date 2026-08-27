@@ -95,14 +95,23 @@ Building against a real LinkML-defined format surfaced something neither the for
 shows on its own: **`linkml-validate` gives different verdicts for the same data depending on the
 serialisation it is loaded from.**
 
+```bash
+cd docs/examples/loader-normalization
+for f in empty.yaml empty.json null.yaml null.json; do
+  printf '%-12s ' "$f"
+  uvx --from 'linkml==1.11.1' linkml-validate -s s.yaml -C T "$f" 2>&1 | grep -E 'No issues|ERROR'
+done
 ```
-$ linkml-validate -s s.yaml -C T <file>          # linkml 1.11.1
 
-  empty.yaml   tags: []          No issues found
-  empty.json   {"tags": []}      [ERROR] 'tags' is a required property in /
-  null.yaml    tags: null        [ERROR] None is not of type 'array' in /tags
-  null.json    {"tags": null}    [ERROR] 'tags' is a required property in /
 ```
+empty.yaml   No issues found
+empty.json   [ERROR] [empty.json/0] 'tags' is a required property in /
+null.yaml    [ERROR] [null.yaml/0] None is not of type 'array' in /tags
+null.json    [ERROR] [null.json/0] 'tags' is a required property in /
+```
+
+`empty.yaml` is `tags: []` and `empty.json` is `{"tags": []}`. The same two values, `[]` and
+`null`, each written both ways.
 
 Same schema, same required multivalued slot, same version. As YAML the empty list is accepted;
 as JSON it is reported missing. LinkML's JSON loader runs `json_clean`, which strips empty
