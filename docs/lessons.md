@@ -4,9 +4,11 @@ Six things, each learned by getting it wrong first. They are written for someone
 the same thing, not as a record of what happened here.
 
 Everything here was measured against LOKF 0.5.0, and against linkml 1.11.1 where a section names
-it. The first four were measured on 2026-08-26, while building the bundle. The two about
-dereferencing and about the context IRI were measured on 2026-08-27, against the deployed site,
-and say so where the figures appear.
+it. The four lessons that came from building the bundle were measured on 2026-08-26. The two
+about dereferencing and about the context IRI came later, from reading what the bundle published,
+and were measured on 2026-08-27 against the deployed site. They say so where the figures appear.
+They sit second and third here because that is where they belong in the argument, not in the
+order they were found.
 
 ## Name concepts where they resolve, or register the prefix first
 
@@ -68,7 +70,9 @@ frontmatter carries `definition` rather than `description`, and the embed only e
 `description`, so that page dereferences to a bare name:
 
 ```json
-{"@context": "https://schema.org", "@type": "GlossaryTerm", "@id": "...", "name": "BERDL tenant"}
+{"@context": "https://schema.org", "@type": "DefinedTerm",
+ "@id": "https://turbomam.github.io/nmdc-lokf-demo/glossary/berdl-tenant",
+ "name": "BERDL tenant"}
 ```
 
 The definition, which is the whole content of a glossary term, is not in the machine-readable
