@@ -31,7 +31,11 @@ STRIP = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.S | re.I)
 TAG = re.compile(r"<[^>]+>")
 BODY = re.compile(r"<body\b[^>]*>(.*?)</body>", re.S | re.I)
 META = re.compile(r"<meta\b[^>]*>", re.I)
-ATTR = re.compile(r"""([a-zA-Z-]+)\s*=\s*("([^"]*)"|'([^']*)')""")
+# One alternation per quote style. re.findall returns "" rather than None for an
+# unmatched group, so the two value groups cannot be told apart by an is-None
+# test; take whichever is non-empty, and fall back to v3 when both are empty so
+# an empty attribute stays empty rather than disappearing.
+ATTR = re.compile(r"""([a-zA-Z-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
 
 
 def body_text(markup: str) -> str:
@@ -56,7 +60,7 @@ def head_fields(markup: str) -> list[tuple[str, str]]:
     # before content. A build is free to emit them in either order, or to put
     # other attributes between them.
     for tag in META.findall(markup):
-        attrs = {k.lower(): (v3 if v3 is not None else v4) for k, _, v3, v4 in ATTR.findall(tag)}
+        attrs = {k.lower(): (dq or sq) for k, dq, sq in ATTR.findall(tag)}
         if attrs.get("name", "").lower() == "description" and "content" in attrs:
             out.append(("meta description", html.unescape(attrs["content"])))
     return out
