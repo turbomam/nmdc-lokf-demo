@@ -108,7 +108,7 @@ to the four knowledge aggregations already in the BERIL Research Observatory.
 site locally, **switching GitHub Pages on** (a fork gets the workflow but no site until you
 do), and what CI checks.
 
-[docs/what-changed.md](docs/what-changed.md): what this differs from a fresh `lokf new`, who
+[docs/what-changed.md](docs/what-changed.md): how this differs from a fresh `lokf new`, who
 maintains which part, and the four related repositories with what each owns.
 
 ## Reproduce

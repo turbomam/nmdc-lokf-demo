@@ -4,6 +4,12 @@ name: check
 #   1. the bundle stops validating against the LOKF schema
 #   2. the committed knowledge.ttl drifts from the concepts it was generated from
 # Both are cheap to check and neither is caught by the pages build.
+#
+# This runs `just check` rather than repeating its commands. An earlier version
+# inlined them, which meant the version pins in the justfile did not apply here:
+# CI resolved whatever lokf release was newest, so a new release could fail
+# Actions or generate different Turtle while the documented local check passed.
+# One definition, one set of pins, no way for local and CI to diverge.
 on:
   push:
     branches: [main]
@@ -22,17 +28,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v5
 
-      - name: Validate the bundle against the LOKF schema
-        run: uvx --from 'lokf[build]' lokf validate knowledge
-
-      - name: knowledge.ttl matches the concepts
-        run: |
-          uvx --from lokf lokf convert knowledge --format ttl -o /tmp/regenerated.ttl
-          if ! diff -u knowledge.ttl /tmp/regenerated.ttl; then
-            echo
-            echo "::error file=knowledge.ttl::knowledge.ttl is out of date."
-            echo "Regenerate it with:"
-            echo "  uvx --from lokf lokf convert knowledge --format ttl -o knowledge.ttl"
-            exit 1
-          fi
-          echo "knowledge.ttl is current."
+      # just is on PyPI as rust-just, so uv supplies it and it gets pinned the
+      # same way everything else here does. No extra action to trust.
+      - name: Validate the bundle and check knowledge.ttl is current
+        run: uvx --from 'rust-just==1.58.0' just check

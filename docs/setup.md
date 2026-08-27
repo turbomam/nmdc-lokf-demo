@@ -6,7 +6,7 @@ Everything here was run on macOS 15 with the versions listed. Nothing is theoret
 
 | Tool | Version used | Needed for |
 |---|---|---|
-| [uv](https://docs.astral.sh/uv/) | 0.12.5 | Everything. `uvx` runs the `lokf` toolkit without installing it |
+| [uv](https://docs.astral.sh/uv/) | 0.12.5 | The bundle recipes. `uvx` runs the `lokf` toolkit without installing it. Not needed for `setup`, `dev` or `site`, which call only npm |
 | [just](https://github.com/casey/just) | 1.58.0 | The task recipes. Optional; most are a single command, and `just check` is a short bash script |
 | Node | 24.15.0 | The website only. Not needed to work with the bundle |
 | Python | 3.13 | Provided by `uv`; no separate install needed |
@@ -58,10 +58,15 @@ should move. Updating dependencies is then an explicit act rather than a side ef
 The workflow is in the repository, but **Pages must be switched on by hand**. A fork gets the
 workflow file and no site until you do this:
 
-1. Settings, then Pages, then set **Source** to **GitHub Actions**. There is no `gh-pages`
+1. **Enable Actions.** A new fork has workflows disabled until you turn them on: open the
+   **Actions** tab and confirm the prompt. Without this, nothing below runs, and the failure
+   is silent rather than an error.
+2. Settings, then Pages, then set **Source** to **GitHub Actions**. There is no `gh-pages`
    branch and none is needed.
-2. Push to `main`. `.github/workflows/pages.yml` builds the Astro site and deploys it.
-3. If no build appears, dispatch it: `gh workflow run pages.yml --ref main`.
+3. Push to `main`. `.github/workflows/pages.yml` builds the Astro site and deploys it.
+4. If no build appears, dispatch it from the **Actions** tab: select **pages**, then **Run
+   workflow** on `main`. With the `gh` CLI, `gh workflow run pages.yml --ref main` does the
+   same thing; the CLI is not a prerequisite.
 
 Current configuration of this repository, for comparison:
 
@@ -89,7 +94,9 @@ be dispatched by hand. If a deploy seems to be missing, check
 
 ## What CI checks
 
-`.github/workflows/check.yml` runs on every push and pull request. It validates the bundle
+`.github/workflows/check.yml` runs on pushes to `main`, on every pull request, and on manual
+dispatch. A push to a feature branch with no open pull request does not trigger it. It
+validates the bundle
 against the LOKF schema, then regenerates `knowledge.ttl` to a temporary file and fails if the
 result differs from the committed one. A stale `knowledge.ttl` fails the build rather than
 sitting unnoticed.

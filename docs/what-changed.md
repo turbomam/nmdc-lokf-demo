@@ -1,4 +1,4 @@
-# What this differs from, and who maintains which part
+# How this differs from a fresh bundle, and who maintains which part
 
 Two things a reader needs and cannot get by looking: what we changed relative to a fresh
 `lokf new`, and which parts of this repository are ours to fix.
