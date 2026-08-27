@@ -67,7 +67,7 @@ products other groups have built.""" .
 <https://turbomam.github.io/nmdc-lokf-demo/explanations/who-built-what-on-nmdc-data> a lokf:Explanation ;
     schema1:creativeWorkStatus "draft" ;
     schema1:dateModified "2026-08-26T00:00:00+00:00"^^xsd:dateTime ;
-    schema1:description "Several groups across DOE BER and partners have built on NMDC data, adding embeddings, trait assignments, catalogues and reconciled annotations. Recording who contributed what keeps that ecosystem legible." ;
+    schema1:description "Several groups across DOE BER and partners have built on NMDC data. Recording who contributed what keeps that ecosystem legible." ;
     schema1:genre "explanation" ;
     schema1:keywords "attribution",
         "berdl",

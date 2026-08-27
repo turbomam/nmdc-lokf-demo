@@ -4,7 +4,7 @@ id: https://turbomam.github.io/nmdc-lokf-demo/explanations/who-built-what-on-nmd
 title: Who built what on NMDC data
 genre: explanation
 timestamp: 2026-08-26T00:00:00Z
-description: Several groups across DOE BER and partners have built on NMDC data, adding embeddings, trait assignments, catalogues and reconciled annotations. Recording who contributed what keeps that ecosystem legible.
+description: Several groups across DOE BER and partners have built on NMDC data. Recording who contributed what keeps that ecosystem legible.
 status: draft
 tags: [attribution, reuse, berdl, modelling]
 ---

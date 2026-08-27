@@ -20,7 +20,8 @@ can be queried together. That is a working reuse ecosystem across DOE BER and pa
 it is what publishing open data is for.
 
 An ecosystem like that stays legible only if contribution is written down somewhere it can
-be queried, cited and corrected. This bundle does that for six resources.
+be queried, cited and corrected. This bundle does that for four datasets, alongside a glossary
+term and an explanation that give them context.
 
 **It also happens to exercise the format.** LOKF's value over plain OKF is that it binds
 fields to schema.org, DCAT and PROV-O: `derivedFrom` becomes `prov:wasDerivedFrom`,
