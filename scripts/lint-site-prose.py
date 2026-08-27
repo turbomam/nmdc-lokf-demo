@@ -67,7 +67,10 @@ class PageReader(HTMLParser):
             # of scope by design. Counting it would be a false failure on valid
             # built HTML.
             self._skip += 1
-        elif tag == "meta":
+        elif tag == "meta" and not self._skip:
+            # `not self._skip` for the same reason handle_data checks it: a meta
+            # element inside a template is inert. Gating the text but not the
+            # attributes left half the element still counted.
             a = {k.lower(): (v or "") for k, v in attrs}
             if a.get("name", "").lower() == "description":
                 self.regions.append(("meta description", a.get("content", "")))
