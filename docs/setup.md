@@ -23,7 +23,7 @@ work on either without installing the other.
 
 | Layer | What | Required? |
 |---|---|---|
-| Format | Markdown with YAML frontmatter, which is also valid JSON-LD | Yes. This is LOKF |
+| Format | Markdown with YAML frontmatter. Not JSON-LD itself: `lokf convert` reads the frontmatter and emits JSON-LD using the generated context, and from there RDF | Yes. This is LOKF |
 | Schema | [LinkML](https://linkml.io/), one schema (`lokf.yaml`) that generates the JSON-LD context, JSON Schema, SHACL, OWL and SQL DDL | Yes, but you never invoke it. The wheel ships `lokf.yaml`, the JSON-LD context and the Python bindings; the JSON Schema, SHACL, OWL and SQL stay upstream, and `lokf validate` reaches the JSON Schema by running `linkml-validate` against the packaged `lokf.yaml`. See [what-linkml-does.md](what-linkml-does.md) |
 | Toolkit | `lokf` 0.5.0 (Python): `convert`, `validate`, `query`, `serve`, `tables`, `propose`, `vocab` | Yes |
 | Graph | RDF via pyoxigraph; `lokf serve` gives a SPARQL endpoint and a graph explorer from stdlib `http.server` | Yes, for the query recipes |
