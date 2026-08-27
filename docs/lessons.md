@@ -31,6 +31,72 @@ grep -oE '^<https://[^>]+>' knowledge.ttl | tr -d '<>' | sort -u | while read u;
 done
 ```
 
+## Resolving is not the same as dereferencing to the graph
+
+The lesson above is that subject IRIs must resolve. It stops short of the next question, which
+is what a machine gets when it follows one. Measured against the live site on 2026-08-27:
+
+```
+$ curl -sL -H "Accept: text/turtle"         .../datasets/kbase-nmdc-arkin  -> 200 text/html
+$ curl -sL -H "Accept: application/ld+json" .../datasets/kbase-nmdc-arkin  -> 200 text/html
+$ curl -sL -H "Accept: application/rdf+xml" .../datasets/kbase-nmdc-arkin  -> 200 text/html
+```
+
+**GitHub Pages cannot do content negotiation.** Every `Accept` header gets HTML. That is a
+hosting limit rather than anything about LOKF or LinkML, and it is worth separating the two,
+because a reader evaluating the pattern may otherwise assume the demo is showing what the format
+can do.
+
+The HTML does carry machine-readable data, but less than the name suggests. Each page embeds a
+`<script type="application/ld+json">` block, and on a concept page it contains exactly this:
+
+```json
+{"@context": "https://schema.org", "@type": "Dataset", "@id": "...", "name": "...", "description": "..."}
+```
+
+That is search-engine markup. **The typed relations are not in it.** `derivedFrom`, `dependsOn`,
+`about` and the producer `tags`, which are the entire point of the bundle, appear only in the
+whole-graph document at `/graph.jsonld`. So a consumer that dereferences a single concept IRI
+gets a name and a description; a consumer that fetches the whole graph gets the edges.
+
+Whether that matters depends on the consumer, and it is a reasonable thing for a static site to
+do. It is not a reasonable thing to leave undocumented in a demo whose claim is that the markdown
+*is* a queryable graph.
+
+What is published, in full:
+
+| Path | Status | Content type | Carries the relations |
+|---|---|---|---|
+| a concept IRI | 200 | `text/html` | no, schema.org name and description only |
+| `/graph.jsonld` | 200 | `application/ld+json` | yes, all 6 concepts and 9 edges |
+| `/graph.json` | 200 | `application/json` | yes, as cytoscape elements |
+| `/knowledge.ttl` | 404 | | not published, though it is committed |
+
+There is also no `<link rel="alternate">` on any page pointing at a machine-readable
+representation, which is the usual way to advertise one when negotiation is unavailable.
+
+## Pin the context, not just the tools
+
+The published graph declares its `@context` as a URL on a moving branch:
+
+```
+https://raw.githubusercontent.com/nicholsn/lokf/main/lokf.context.jsonld
+```
+
+Two consequences. The meaning of every term in this graph is defined by whatever that file
+contains at the moment a consumer resolves it, so an upstream edit changes this graph's semantics
+with no commit here. And `raw.githubusercontent.com` serves it as `text/plain`, from a host that
+makes no availability promise for this use.
+
+This is the scaffold default: `lokf new` writes that line into `knowledge/index.md`, and the
+installed template carries it verbatim, so every LOKF bundle inherits it.
+
+Worth noticing next to what this repository does elsewhere. Every `uvx` invocation here is pinned
+to `lokf==0.5.0` precisely so a new release cannot change behaviour silently. The *semantics* of
+the published graph were left pointing at a branch. Pinning the tools and not the vocabulary is a
+gap that is easy to miss, because tooling drift breaks a build and vocabulary drift does not
+break anything at all.
+
 ## Pass `--base-iri` to `lokf new`
 
 It sets all four places that hold the base: `knowledge/index.md`, `astro.config.mjs`,

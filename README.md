@@ -98,10 +98,11 @@ rather than a port.
 
 ## What this taught us
 
-[docs/lessons.md](docs/lessons.md): four things learned by getting them wrong first, written for
-someone about to build their own bundle. Dead subject IRIs that nothing checks, the silent
-half-migration when `--base-iri` is skipped, projection not enforcing what validation enforces,
-and why the frontmatter mapping is the real work.
+[docs/lessons.md](docs/lessons.md): six things learned by getting them wrong first, written for
+someone about to build their own bundle. Dead subject IRIs that nothing checks, what a concept
+IRI actually dereferences to once it does resolve, the published graph's context pointing at a
+moving branch, the silent half-migration when `--base-iri` is skipped, projection not enforcing
+what validation enforces, and why the frontmatter mapping is the real work.
 
 ## What it's built on, and what else exists
 
