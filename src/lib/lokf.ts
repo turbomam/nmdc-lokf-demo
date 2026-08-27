@@ -87,9 +87,11 @@ const SCHEMA_TYPE: Record<string, string> = {
  * Reading `description` alone left the glossary concept with no page tagline, no
  * meta description, and a JSON-LD block holding only its name.
  *
- * This exists so the three consumers cannot drift: the JSON-LD block, the page
- * tagline, and the `<meta name="description">` all take the same value. Two of
- * them had already drifted from the third once.
+ * This exists so the four consumers cannot drift: the JSON-LD block, the page
+ * tagline, the `<meta name="description">`, and the homepage card. Three of them
+ * had already drifted from the fourth, and the first version of this helper
+ * still missed the card, which is the argument for routing every one of them
+ * through here rather than counting on the next person to notice.
  *
  * `definition` is the term's primary definition text, not everything the file
  * says: a glossary entry can also carry body content below the frontmatter, and
