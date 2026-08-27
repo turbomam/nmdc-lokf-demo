@@ -38,6 +38,12 @@ tables:
 ttl:
     uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o knowledge.ttl
 
+# Check the built site for typography that should never reach a reader.
+# Lints dist/, meaning exactly what ships, so code comments are out of scope and
+# text inherited from the lokf new scaffold is caught the same as our own.
+lint-site: site
+    python3 scripts/lint-site-prose.py dist
+
 # What CI checks: bundle validates and knowledge.ttl is current.
 # Read-only: regenerates to a temp file so the working tree is never touched.
 # Use `just ttl` when you actually want to rewrite knowledge.ttl.

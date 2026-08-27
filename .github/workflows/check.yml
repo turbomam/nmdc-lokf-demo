@@ -32,3 +32,19 @@ jobs:
       # same way everything else here does. No extra action to trust.
       - name: Validate the bundle and check knowledge.ttl is current
         run: uvx --from 'rust-just==1.58.0' just check
+
+  site-prose:
+    # The em dash that shipped in the footer of all 8 pages was invisible to
+    # every check this repository had, because they all look at the bundle or at
+    # pull request bodies. This one looks at what a reader sees.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Typography in the published prose
+        run: python3 scripts/lint-site-prose.py dist

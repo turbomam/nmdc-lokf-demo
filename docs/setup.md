@@ -182,10 +182,19 @@ be dispatched by hand. If a deploy seems to be missing, check
 ## What CI checks
 
 `.github/workflows/check.yml` runs on pushes to `main`, on every pull request, and on manual
-dispatch. A push to a feature branch with no open pull request does not trigger it. It
-validates the bundle
-against the LOKF schema, then regenerates `knowledge.ttl` to a temporary file and fails if the
-result differs from the committed one. A stale `knowledge.ttl` fails the build rather than
-sitting unnoticed.
+dispatch. A push to a feature branch with no open pull request does not trigger it. Two jobs:
+
+`bundle` validates the bundle against the LOKF schema, then regenerates `knowledge.ttl` to a
+temporary file and fails if the result differs from the committed one. A stale `knowledge.ttl`
+fails the build rather than sitting unnoticed. It runs `just check`, so the version pins live in
+one place instead of being repeated here.
+
+`site-prose` builds the site and runs `scripts/lint-site-prose.py` over `dist/`, failing on em
+and en dashes in rendered body text, page titles and meta descriptions. It exists because an em
+dash shipped in the footer of all 8 pages and nothing in this repository looked at published
+text: Vale checks issue and pull request bodies, and the bundle checks say nothing about prose.
+Linting `dist/` rather than the sources means code comments are out of scope for free, and text
+inherited from the `lokf new` scaffold is caught the same as our own. Run it yourself with
+`just lint-site`.
 
 `.github/workflows/pages.yml` builds and deploys the site on pushes to `main`.
