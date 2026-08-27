@@ -34,14 +34,13 @@ READER_ATTRS = ("placeholder", "title", "alt", "aria-label", "aria-description",
 ANY_TAG = re.compile(r"<[a-zA-Z][^>]*>")
 SCRIPT_SRC = re.compile(r'<script[^>]*\bsrc=["\']([^"\']+)["\']', re.I)
 INLINE_SCRIPT = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.S | re.I)
-JS_STRING = re.compile(r"""(?<![\\])(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`)""")
+JS_ESCAPE = re.compile(r"(\\*)\\(?:u\{?([0-9a-fA-F]{1,6})\}?|x([0-9a-fA-F]{2}))")
 TAG = re.compile(r"<[^>]+>")
 BODY = re.compile(r"<body\b[^>]*>(.*?)</body>", re.S | re.I)
 META = re.compile(r"<meta\b[^>]*>", re.I)
 # One alternation per quote style. re.findall returns "" rather than None for an
 # unmatched group, so the two value groups cannot be told apart by an is-None
-# test; take whichever is non-empty, and fall back to v3 when both are empty so
-# an empty attribute stays empty rather than disappearing.
+# test. Callers take `dq or sq`, whichever is non-empty.
 ATTR = re.compile(r"""([a-zA-Z-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
 
 
@@ -84,6 +83,29 @@ def reader_attributes(markup: str) -> list[tuple[str, str]]:
     return out
 
 
+def decode_js_escapes(text: str) -> str:
+    """Turn active \\uXXXX and \\xXX escapes into the characters they denote.
+
+    This build emits non-ASCII literally, measured end to end: an em dash placed
+    in a src/ string arrives in the bundle as the character, not as an escape.
+    Other bundlers, and this one under a different target or minifier setting,
+    emit ASCII-only output. Decoding first means the check does not quietly stop
+    working if that changes, which is the failure mode worth guarding: it would
+    report clean rather than error.
+
+    Only escapes preceded by an even number of backslashes are active. In
+    ``\\\\u2014`` the backslash is itself escaped and the text is literal.
+    """
+
+    def sub(m: re.Match[str]) -> str:
+        prefix = m.group(1)
+        if len(prefix) % 2:
+            return m.group(0)
+        return prefix + chr(int(m.group(2) or m.group(3), 16))
+
+    return JS_ESCAPE.sub(sub, text)
+
+
 def script_text(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
     """Strings a script writes into the DOM.
 
@@ -107,7 +129,8 @@ def script_text(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
         name = src.split("/")[-1]
         for candidate in root.rglob(name):
             if candidate.is_file():
-                out.append((f"script {candidate.name}", candidate.read_text(encoding="utf-8", errors="replace")))
+                raw = candidate.read_text(encoding="utf-8", errors="replace")
+                out.append((f"script {candidate.name}", decode_js_escapes(raw)))
                 break
     return out
 
