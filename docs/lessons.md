@@ -79,10 +79,12 @@ A corollary seen elsewhere: **check what a rule actually does before copying it.
 presence check to `required: true` on a multivalued slot silently tightens the rules, because
 `linkml-validate` rejects an empty list. Not because the two words mean different things: the
 LinkML metamodel defines `required` as presence too, and the generated JSON Schema accepts the
-empty list. `linkml-validate` normalises empty collections and nulls to absent before validating, so the
-ordinary presence check fires on a document the schema itself would pass.
+empty list. LinkML's **JSON loader** normalises empty collections and nulls to absent before validating, so
+the ordinary presence check fires on a document the schema itself would pass. The YAML loader
+does not, which means the same instance validates clean as YAML and fails as JSON. `lokf
+validate` gets the JSON behaviour because it writes a temporary `.bundle.json`.
 
 The exposure is narrower than "two tools disagree" and more useful to know: any slot that is
 `multivalued`, `required`, and legitimately empty behaves differently depending on which
-artifact a consumer validates against. See [atlas-as-linkml.md](atlas-as-linkml.md) for the
+artifact a consumer validates against and which format it is loaded from. See [atlas-as-linkml.md](atlas-as-linkml.md) for the
 reduced case and the measurements.

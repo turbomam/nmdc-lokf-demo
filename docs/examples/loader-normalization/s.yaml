@@ -1,0 +1,12 @@
+id: https://example.org/t
+name: t
+prefixes: {linkml: https://w3id.org/linkml/}
+imports: [linkml:types]
+default_range: string
+classes:
+  T:
+    tree_root: true
+    attributes:
+      tags:
+        multivalued: true
+        required: true

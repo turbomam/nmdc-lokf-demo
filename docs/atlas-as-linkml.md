@@ -114,15 +114,43 @@ that normalises empty and null to absent before validating produces exactly this
 So `linkml-validate` is not applying a different rule. It is validating a **transformed**
 document, and the ordinary presence check then fires.
 
-That distinction changes what a reader should do. "The two tools disagree" invites picking one.
-"Empty and null are normalised to absent on one path only" gives the actual exposure: any slot
-that is `multivalued`, `required`, and legitimately empty behaves differently depending on which
-artifact a consumer validates against. `linked_conflicts: []` in the atlas is exactly that
+The transformation belongs to the loader, not to the validator, and only the JSON loader
+performs it. Review raised this and it turned out to be both correct and larger than stated, so
+the same reduced case was run again with the input serialised each way:
+
+```
+$ linkml-validate -s s.yaml -C T <file>          # linkml 1.11.1
+
+  empty.yaml   tags: []          No issues found
+  empty.json   {"tags": []}      [ERROR] 'tags' is a required property in /
+  null.yaml    tags: null        [ERROR] None is not of type 'array' in /tags
+  null.json    {"tags": null}    [ERROR] 'tags' is a required property in /
+```
+
+Those four files are committed at
+[examples/loader-normalization/](examples/loader-normalization/) so the result can be
+reproduced without reconstructing the case.
+
+**The serialisation format changes the verdict, including whether validation passes at all.**
+The same data, the same schema, the same LinkML version: as YAML the empty list is accepted, as
+JSON it is reported missing. The null case is a milder version of the same split, a type error
+on one path and a presence error on the other.
+
+That places the mechanism precisely. LinkML's JSON loader runs `json_clean`, which strips nulls
+and empty collections; the YAML loader passes `yaml.safe_load_all` output through untouched. So
+the normalisation described above is a property of **JSON input**, and the earlier phrasing here,
+which attributed it to `linkml-validate` generally, was too broad. `lokf validate` reaches it
+because it writes a temporary `.bundle.json` and validates that, so bundle authors get the JSON
+behaviour whether or not they ever write JSON themselves.
+
+The exposure, stated accurately: any slot that is `multivalued`, `required`, and legitimately
+empty behaves differently depending on which artifact a consumer validates against **and on
+which format the instance is loaded from**. `linked_conflicts: []` in the atlas is exactly that
 shape, which is how this surfaced.
 
-These measurements were taken on linkml 1.11.1, independently by two sessions. **The behaviour
-has not been reported upstream.** Seven searches of the `linkml/linkml` tracker returned
-nothing, but absence of a hit is not proof of absence, and filing there is a decision for that
+These measurements were taken on linkml 1.11.1, independently by two sessions. **This work has
+not filed a report upstream.** Seven searches of the `linkml/linkml` tracker returned no
+matching issue, but absence of a hit is not proof of absence, and filing there is a decision for that
 repository's maintainers rather than a byproduct of this experiment.
 
 The practical consequence for a translation is unchanged and still the thing to plan for: copying
