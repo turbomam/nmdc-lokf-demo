@@ -98,12 +98,33 @@ classes:
 ```
 
 ```
-{"tags": []}
-  gen-json-schema output + jsonschema  -> VALID
-  linkml-validate                      -> [ERROR] 'tags' is a required property in /
+input            linkml-validate                        gen-json-schema output + jsonschema
+{"tags": ["x"]}  No issues found                        VALID
+{"tags": []}     [ERROR] 'tags' is a required property  VALID
+{"tags": null}   [ERROR] 'tags' is a required property  INVALID: None is not of type 'array'
+{}               [ERROR] 'tags' is a required property  INVALID: 'tags' is a required property
 ```
 
-On linkml 1.11.1. Reported upstream; see the repository's issue tracker.
+The `null` row is what identifies the mechanism, and it is worth more than the empty-list row
+on its own. On the raw path a null produces a **type** error; on the `linkml-validate` path it
+produces a **presence** error, word for word the same one the absent case produces. A validator
+enforcing at-least-one-item would still have seen a null and complained about its type. One
+that normalises empty and null to absent before validating produces exactly this.
+
+So `linkml-validate` is not applying a different rule. It is validating a **transformed**
+document, and the ordinary presence check then fires. Measured independently by two sessions on
+linkml 1.11.1.
+
+That distinction changes what a reader should do. "The two tools disagree" invites picking one.
+"Empty and null are normalised to absent on one path only" gives the actual exposure: any slot
+that is `multivalued`, `required`, and legitimately empty behaves differently depending on which
+artifact a consumer validates against. `linked_conflicts: []` in the atlas is exactly that
+shape, which is how this surfaced.
+
+On linkml 1.11.1, measured independently by two sessions. **Not reported upstream.** Seven
+searches of the `linkml/linkml` tracker returned nothing, but absence of a hit is not proof
+of absence, and filing there is a decision for the repository's maintainers to make rather
+than a byproduct of this experiment.
 
 The practical consequence for a translation is unchanged and still the thing to plan for: copying
 `REQUIRED_*` sets into `required: true` **tightens** the rules as `linkml-validate` applies them,
