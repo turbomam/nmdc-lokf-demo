@@ -46,7 +46,7 @@ just --list          # every recipe, with a one-line description each
 | Recipe | What it does |
 |---|---|
 | `just check` | What CI's `bundle` job runs. Validates the bundle and confirms `knowledge.ttl` matches the concepts. **Read-only**; never touches the working tree |
-| `just lint-site` | What CI's `site-prose` job runs. Builds the site, then fails on em and en dashes anywhere a reader meets them |
+| `just lint-site` | What CI's `site-prose` job runs. Builds the site, then fails on em and en dashes anywhere a reader meets them, including attributes and client bundles |
 | `just ttl` | Regenerates `knowledge.ttl`. The one command that rewrites it |
 | `just rdf` | Prints the bundle as Turtle to stdout |
 | `just serve` | A local SPARQL endpoint and graph explorer, no Node required |
@@ -200,7 +200,8 @@ report names the region it was found in. It exists because an em
 dash shipped in the footer of all 8 pages and nothing in this repository looked at published
 text: Vale checks issue and pull request bodies, and the bundle checks say nothing about prose.
 Linting `dist/` rather than the sources means code comments are out of scope for free, and text
-inherited from the `lokf new` scaffold is caught the same as our own. Run it yourself with
-`just lint-site`.
+inherited from the `lokf new` scaffold is caught the same as our own. The job invokes
+`just lint-site`, so the recipe is the single definition and running it locally checks exactly
+what CI checks.
 
 `.github/workflows/pages.yml` builds and deploys the site on pushes to `main`.

@@ -44,7 +44,18 @@ READER_ATTRS = (
     "aria-label",
     "aria-description",
     "aria-placeholder",
+    "aria-valuetext",
+    "aria-roledescription",
 )
+
+# `value` and `label` are shown to a reader only on certain elements, so they
+# cannot go in the list above without flagging every hidden field and form value.
+# A submit button's `value` is its caption; an option's `label` is what the menu
+# displays.
+VALUE_TAGS = {"button", "option"}
+# An input's `value` is visible except where the control hides or masks it.
+VALUE_INPUT_TYPES_HIDDEN = {"hidden", "password"}
+LABEL_TAGS = {"option", "optgroup", "track"}
 
 # `<script>` types whose contents are not scanned as code. Kept deliberately
 # narrow: excluding a type that client code reads and renders would let a
@@ -64,6 +75,10 @@ DATA_SCRIPT_TYPES = {
 # text/x-template. Client code routinely reads those and inserts the result into
 # the page, and nothing guarantees that text appears in another scanned region,
 # so skipping them would let a reader-visible dash through.
+
+# Text that always contains a banned character, so an unresolved bundle surfaces
+# as a finding rather than as silence.
+UNRESOLVED = "could not be read, so its prose is unchecked \u2014 resolve it or remove the reference"
 
 JS_ESCAPE = re.compile(
     r"(\\*)\\(?:u\{([0-9a-fA-F]{1,6})\}|u([0-9a-fA-F]{4})|x([0-9a-fA-F]{2}))"
@@ -106,6 +121,14 @@ class PageReader(HTMLParser):
         for name in READER_ATTRS:
             if value := a.get(name):
                 self.attributes.append((f"@{name}", value))
+        if value := a.get("value"):
+            visible = tag in VALUE_TAGS or (
+                tag == "input" and a.get("type", "text").lower() not in VALUE_INPUT_TYPES_HIDDEN
+            )
+            if visible:
+                self.attributes.append(("@value", value))
+        if (value := a.get("label")) and tag in LABEL_TAGS:
+            self.attributes.append(("@label", value))
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "body":
@@ -156,7 +179,7 @@ def decode_js_escapes(text: str) -> str:
     return JS_ESCAPE.sub(sub, text)
 
 
-def bundle_text(root: pathlib.Path, srcs: list[str]) -> list[tuple[str, str]]:
+def bundle_text(root: pathlib.Path, page: pathlib.Path, srcs: list[str]) -> list[tuple[str, str]]:
     """Raw text of the client bundles a page references.
 
     Astro emits client scripts as separate files under `_astro/`, so text a
@@ -174,21 +197,47 @@ def bundle_text(root: pathlib.Path, srcs: list[str]) -> list[tuple[str, str]]:
     """
     out = []
     for src in srcs:
-        # A query string or fragment is part of the URL, not of the filename.
-        # Leaving it on turns app.js?v=1 into a name nothing matches, and the
-        # bundle is then skipped without a word.
-        name = src.split("#")[0].split("?")[0].split("/")[-1]
-        if not name:
+        # A query string or fragment is part of the URL, not of the path.
+        clean = src.split("#")[0].split("?")[0]
+        if not clean or "://" in clean:
+            continue  # a remote script is not ours to lint
+        path = resolve_asset(root, page, clean)
+        if path is None:
+            # Do not pass silently. A bundle that cannot be resolved is prose
+            # nobody checked, and every earlier version of this function failed
+            # exactly that way: it looked, found nothing, and reported clean.
+            out.append((f"unresolved script {clean}", UNRESOLVED))
             continue
-        for candidate in root.rglob(name):
-            if candidate.is_file():
-                raw = candidate.read_text(encoding="utf-8", errors="replace")
-                out.append((f"script {candidate.name}", decode_js_escapes(raw)))
-                break
+        raw = path.read_text(encoding="utf-8", errors="replace")
+        out.append((f"script {path.name}", decode_js_escapes(raw)))
     return out
 
 
-def regions(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
+def resolve_asset(root: pathlib.Path, page: pathlib.Path, url: str) -> "pathlib.Path | None":
+    """Map a script URL to a file, by path rather than by filename.
+
+    Matching on the basename and taking the first recursive hit picks the wrong
+    file whenever two bundles share a name: a page referencing `/b/app.js` could
+    be checked against `a/app.js`, and the bundle that actually shipped never
+    read at all.
+
+    Root-relative URLs are tried against the scan root, then with successive
+    leading segments dropped, because a project page is published under a base
+    path (`/nmdc-lokf-demo/_astro/...`) that is not part of the built tree.
+    Page-relative URLs resolve against the page's own directory.
+    """
+    if url.startswith("/"):
+        parts = url.lstrip("/").split("/")
+        for i in range(len(parts)):
+            candidate = root.joinpath(*parts[i:])
+            if candidate.is_file():
+                return candidate
+        return None
+    candidate = (page.parent / url).resolve()
+    return candidate if candidate.is_file() else None
+
+
+def regions(root: pathlib.Path, page: pathlib.Path, markup: str) -> list[tuple[str, str]]:
     reader = PageReader()
     reader.feed(markup)
     reader.close()
@@ -201,7 +250,7 @@ def regions(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
     # a reader sees as &mdash;, into an actual em dash and fails on it.
     out += list(reader.attributes)
     out += [("inline script", decode_js_escapes(s)) for s in reader.inline_scripts]
-    out += bundle_text(root, reader.script_srcs)
+    out += bundle_text(root, page, reader.script_srcs)
     return out
 
 
@@ -224,7 +273,7 @@ def main(argv: list[str]) -> int:
     findings = []
     for page in pages:
         markup = page.read_text(encoding="utf-8", errors="replace")
-        for where, text in regions(root, markup):
+        for where, text in regions(root, page, markup):
             for char, (name, instead) in BANNED.items():
                 for m in re.finditer(re.escape(char), text):
                     findings.append((page, where, name, instead, context(text, m.start())))

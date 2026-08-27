@@ -45,7 +45,7 @@ lint-site: site
     python3 scripts/lint-site-prose.py dist
 
 # What CI's `bundle` job runs: the bundle validates and knowledge.ttl is
-# current. Not the whole suite; `site-prose` runs `just lint-site` separately.
+# current. Not the whole suite; the `site-prose` job runs `just lint-site`.
 # Read-only: regenerates to a temp file so the working tree is never touched.
 # Use `just ttl` when you actually want to rewrite knowledge.ttl.
 check:

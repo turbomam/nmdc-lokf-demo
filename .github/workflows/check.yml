@@ -45,7 +45,10 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - uses: astral-sh/setup-uv@v5
       - run: npm ci
-      - run: npm run build
+      # Runs `just lint-site`, which builds the site and then lints it, rather
+      # than repeating those two commands here. Same reason the bundle job runs
+      # `just check`: one definition, so the recipe and CI cannot drift.
       - name: Typography in the published prose
-        run: python3 scripts/lint-site-prose.py dist
+        run: uvx --from 'rust-just==1.58.0' just lint-site
