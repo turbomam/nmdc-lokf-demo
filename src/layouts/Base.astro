@@ -32,8 +32,21 @@ const graphs = jsonld ? (Array.isArray(jsonld) ? jsonld : [jsonld]) : [];
     <meta property="og:type" content="website" />
     <meta name="generator" content="Astro + LOKF" />
     {/* GitHub Pages cannot content-negotiate, so a machine asking for RDF gets
-        this HTML. Advertise where the graph actually lives instead. */}
-    <link rel="alternate" type="application/ld+json" href={href('/graph.jsonld')} />
+        this HTML. Advertise where the graph lives, with the relation that is
+        actually true of each page.
+
+        rel="alternate" asserts the target is another representation of THIS
+        document. That holds on the graph page, whose subject is the whole
+        graph. On a concept page it would be false, and a linked-data client
+        could take five unrelated concepts to be alternate representations of
+        the one being dereferenced. Those pages use rel="describedby", the
+        registered relation for "the linked document describes this one",
+        which is exactly the claim being made. */}
+    <link
+      rel={path === href('/graph').replace(/\/$/, '') ? 'alternate' : 'describedby'}
+      type="application/ld+json"
+      href={href('/graph.jsonld')}
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

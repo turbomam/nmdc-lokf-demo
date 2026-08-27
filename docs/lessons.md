@@ -91,16 +91,29 @@ What is published, in full:
 | `/graph.json` | 200 | `application/json` | yes, as cytoscape elements |
 | `/knowledge.ttl` | 404 | | not published, though it is committed |
 
-When negotiation is unavailable, the usual way to advertise a machine-readable representation is
-`<link rel="alternate">`. There was none on any page. There is now: every page carries
+When negotiation is unavailable, the way to advertise a machine-readable representation is a link
+relation. There was none on any page. There is now, and which relation is correct depends on the
+page, which is worth spelling out because getting it wrong is easy and silent.
+
+`rel="alternate"` asserts that the target is another representation of **this** document. That is
+true on the graph page, whose subject is the whole graph:
 
 ```html
 <link rel="alternate" type="application/ld+json" href="/nmdc-lokf-demo/graph.jsonld" />
 ```
 
-That points at the whole graph rather than at a per-concept document, because no per-concept RDF
-file is published. It is an honest pointer to where the relations actually live, not a claim that
-the concept itself has an alternate serialisation.
+On a concept page it would be false. `/graph.jsonld` is not another serialisation of
+`kbase.nmdc_arkin`; it is a document containing that concept and five others. Declaring it an
+alternate invites a linked-data client to treat five unrelated nodes as representations of the one
+being dereferenced. Concept pages therefore use the relation that is actually true:
+
+```html
+<link rel="describedby" type="application/ld+json" href="/nmdc-lokf-demo/graph.jsonld" />
+```
+
+`describedby` is the registered relation for "the linked document describes this one", which is
+precisely the claim. The alternative would be publishing per-concept RDF, at which point
+`alternate` becomes correct everywhere. That is a larger change and has not been made.
 
 ## Pin the context, not just the tools
 
