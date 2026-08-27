@@ -1,14 +1,19 @@
 name: check
 
-# Three things that can silently rot:
+# Four things that can silently rot:
 #   1. the bundle stops validating against the LOKF schema
 #   2. the committed knowledge.ttl drifts from the concepts it was generated from
 #   3. banned typography reaches the published site
+#   4. banned typography sits in repository markdown, which is read on GitHub
+#      and never reaches the site at all
 #
-# All three are cheap to check. The first two are caught only here. The third is
+# All four are cheap to check. One, two and four are caught only here. Three is
 # also checked in pages.yml, which gates the artifact upload, because that is the
 # workflow that actually publishes; this one catches it on pull requests, before
 # anything is published at all. Both call `just lint-dist`.
+#
+# Three and four are separate surfaces, not one rule applied twice: the site
+# check reads built HTML, and repository markdown never reaches the site.
 #
 # Each job runs its `just` recipe rather than repeating the recipe's commands:
 # `bundle` runs `just check`, `site-prose` runs `just lint-site`. An earlier
@@ -39,6 +44,40 @@ jobs:
       # same way everything else here does. No extra action to trust.
       - name: Validate the bundle and check knowledge.ttl is current
         run: uvx --from 'rust-just==1.58.0' just check
+
+      # Deliberately a grep and not a linter. The site check next door needed a
+      # script because it has to decide which parts of built HTML a reader sees;
+      # that judgement is what produced its false positives and its review
+      # rounds. A character is either in a markdown file or it is not, so there
+      # is nothing to configure, nothing to misread, and no prose to go stale.
+      #
+      # git grep restricts this to tracked files for free, and prints the
+      # offending line so the failure explains itself.
+      - name: No em or en dashes in tracked markdown
+        run: |
+          # Status handled explicitly rather than with `if git grep ...`. That
+          # construct reads every non-zero exit as "no match", so a git built
+          # without PCRE, or any other failure, would print a fatal error and
+          # pass the step, silently disabling the check. Fail-open is the
+          # failure mode this repository has spent the day removing.
+          set +e
+          out=$(git grep -n -P '\x{2014}|\x{2013}' -- '*.md')
+          status=$?
+          set -e
+          case "$status" in
+            0)
+              echo "$out"
+              echo "::error::em or en dash in tracked markdown; use commas, periods, colons or parentheses"
+              exit 1
+              ;;
+            1)
+              echo "No em or en dashes in tracked markdown."
+              ;;
+            *)
+              echo "::error::git grep failed with status $status; the dash check did not run"
+              exit 1
+              ;;
+          esac
 
   site-prose:
     # The em dash that shipped in the footer of all 8 pages was invisible to
