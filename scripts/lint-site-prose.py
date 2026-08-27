@@ -92,6 +92,7 @@ def main(argv: list[str]) -> int:
         return 2
 
     findings = []
+    hit_pages = set()
     for page in pages:
         reader = PageReader()
         reader.feed(page.read_text(encoding="utf-8", errors="replace"))
@@ -102,12 +103,18 @@ def main(argv: list[str]) -> int:
                     lo, hi = max(0, m.start() - 44), m.start() + 44
                     ctx = " ".join(text[lo:hi].split())
                     findings.append(f"{page}: {name} in {where}\n    ...{ctx}...\n    use {instead}")
+                    hit_pages.add(page)
 
     for f in findings:
         print(f)
     if findings:
-        print(f"\n{len(findings)} finding(s). These come from string literals in src/ or prose "
-              "in knowledge/, including text inherited from the lokf new scaffold.", file=sys.stderr)
+        # The affected-page count is worth the extra clause: three findings on
+        # one page is a single mistake, three across three pages is usually one
+        # string in a shared layout, and those want different fixes.
+        n = len(findings)
+        print(f"\n{n} finding{'s' if n != 1 else ''} across {len(hit_pages)} of {len(pages)} "
+              "page(s). These come from string literals in src/ or prose in knowledge/, "
+              "including text inherited from the lokf new scaffold.", file=sys.stderr)
         return 1
     print(f"{len(pages)} page(s) checked, no banned typography.")
     return 0

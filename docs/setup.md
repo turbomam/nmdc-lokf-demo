@@ -195,10 +195,11 @@ and en dashes in three regions: rendered body text, the page `<title>`, and the 
 Those are where all three shipped instances were. The report names the region, which is what tells
 you where to fix a finding.
 
-Attributes, inline scripts and client bundles are **not** scanned. An earlier version covered them,
-caught nothing real here, and introduced false positives on valid markup, so the scope was reduced
-to what has actually gone wrong. https://github.com/turbomam/nmdc-lokf-demo/issues/56 records what
-is uncovered. It exists because an em
+Attributes, inline scripts, client bundles and text assembled at runtime are **not** scanned. An
+earlier version covered the first three, caught nothing real here across ten review rounds, and
+introduced false positives on valid markup, so the scope was reduced to what has actually gone
+wrong. https://github.com/turbomam/nmdc-lokf-demo/issues/56 lists every exclusion and what would
+justify adding coverage back. It exists because an em
 dash shipped in the footer of all 8 pages and nothing in this repository looked at published
 text: Vale checks issue and pull request bodies, and the bundle checks say nothing about prose.
 Linting `dist/` rather than the sources means code comments are out of scope for free, and text
