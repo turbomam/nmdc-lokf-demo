@@ -117,7 +117,9 @@ export function conceptJsonLd(e: Concept) {
   // subject keywords, and mapping them to schema.org `keywords` would assert
   // something different from what they mean. The typed relations (`derivedFrom`,
   // `dependsOn`, `about`) are not here either: this block is search-engine
-  // markup for a single page, and the graph lives at /graph.jsonld, which every
-  // page points at with rel="describedby". See docs/lessons.md.
+  // markup for a single page, and the graph lives at /graph.jsonld. Concept
+  // pages point at it with rel="describedby"; the graph page uses
+  // rel="alternate", where the whole graph really is another representation of
+  // that page. See docs/lessons.md.
   return node;
 }
