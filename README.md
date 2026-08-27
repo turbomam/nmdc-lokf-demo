@@ -12,14 +12,21 @@ when the only thing you start with is prose?
 
 ## Why this content
 
-Two reasons, and neither is a claim that anything is wrong with the resources described.
+**Because people are building on NMDC data, and that is worth recording.** In the BERDL
+lakehouse the Arkin Lab at LBNL has extended NMDC omics with vector embeddings, organism
+trait assignments and a reconciled annotation layer. NEON observations run through
+workflows of the kind NMDC uses. NCBI BioSample records sit alongside NMDC's own so the two
+can be queried together. That is a working reuse ecosystem across DOE BER and partners, and
+it is what publishing open data is for.
 
-**It is the kind of content that exercises the format.** LOKF's value over plain OKF is
-that it binds fields to schema.org, DCAT and PROV-O. `derivedFrom` becomes
-`prov:wasDerivedFrom`; `dependsOn` becomes `dcterms:requires`. Only content with real
-relationships between things exercises that. A flat glossary would have produced isolated
-nodes and no edges, which demonstrates nothing. Provenance is relationships by definition,
-so it was the obvious test.
+An ecosystem like that stays legible only if contribution is written down somewhere it can
+be queried, cited and corrected. This bundle does that for six resources.
+
+**It also happens to exercise the format.** LOKF's value over plain OKF is that it binds
+fields to schema.org, DCAT and PROV-O: `derivedFrom` becomes `prov:wasDerivedFrom`,
+`dependsOn` becomes `dcterms:requires`. Attribution is relationships by definition, so it
+was the obvious content to test with. A flat glossary would have produced isolated nodes
+and no edges.
 
 **The findings were already public.** They come from the `nmdc_context_audit` project in
 the BERIL Research Observatory, measured by the people who ran the audit. This bundle
@@ -28,9 +35,7 @@ not make new claims about anyone's data.
 
 ## What the bundle shows
 
-A BERDL database name carries the host tenant. Who produced the records is a separate,
-independent fact. Both are worth knowing and a single string cannot hold both, so the
-producer goes in the graph:
+Who contributed each resource, and what it was built from:
 
 ```
 $ lokf query knowledge "$(cat queries/producer-and-host.rq)"
@@ -42,14 +47,14 @@ nmdc.metadata         nmdc        produced-by-nmdc       None
 nmdc.ncbi_biosamples  nmdc        produced-by-ncbi       None
 ```
 
-Read down the two middle columns. The `kbase` tenant hosts data from two different
-producers, and the `nmdc` tenant hosts data produced by NCBI as well as by NMDC. The host
-is recoverable from the name, so the query derives it with `STRBEFORE`. The producer is
-not, so it comes off the graph.
+Four groups contributed these four resources, and one of them builds directly on another:
+`kbase.nmdc_arkin` carries a `prov:wasDerivedFrom` edge to `nmdc.metadata`.
 
-The tenant boundaries are deliberate: NMDC-derived products sit in the `kbase` tenant so
-the `nmdc` tenant stays a clean surface the NMDC team curates. That is what makes the
-hosting axis meaningful. This bundle adds the production axis alongside it.
+The two middle columns are separate facts. Hosting is recoverable from the name, so the
+query derives it with `STRBEFORE`; the tenant boundaries are a deliberate arrangement that
+keeps NMDC-derived work in `kbase` and leaves the `nmdc` tenant a clean surface the NMDC
+team curates. Contribution is not recoverable from a name and was never meant to be, so it
+comes off the graph. Both are worth having, which is why they are two columns.
 
 ## Currency
 
