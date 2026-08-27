@@ -190,7 +190,12 @@ fails the build rather than sitting unnoticed. It runs `just check`, so the vers
 one place instead of being repeated here.
 
 `site-prose` builds the site and runs `scripts/lint-site-prose.py` over `dist/`, failing on em
-and en dashes in rendered body text, page titles and meta descriptions. It exists because an em
+and en dashes anywhere a reader can meet them. That is wider than the visible text: rendered body
+text, page titles, meta descriptions, reader-facing attributes (`placeholder`, `title`, `alt`,
+`aria-label` and the two `aria-*` variants), inline scripts, and the raw text of the client
+bundles a page references, with JavaScript escapes decoded first so an escaped dash is caught
+like a literal one. Knowing the regions is what tells you where to fix a finding, since the
+report names the region it was found in. It exists because an em
 dash shipped in the footer of all 8 pages and nothing in this repository looked at published
 text: Vale checks issue and pull request bodies, and the bundle checks say nothing about prose.
 Linting `dist/` rather than the sources means code comments are out of scope for free, and text

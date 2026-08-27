@@ -34,7 +34,9 @@ READER_ATTRS = ("placeholder", "title", "alt", "aria-label", "aria-description",
 ANY_TAG = re.compile(r"<[a-zA-Z][^>]*>")
 SCRIPT_SRC = re.compile(r'<script[^>]*\bsrc=["\']([^"\']+)["\']', re.I)
 INLINE_SCRIPT = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.S | re.I)
-JS_ESCAPE = re.compile(r"(\\*)\\(?:u\{?([0-9a-fA-F]{1,6})\}?|x([0-9a-fA-F]{2}))")
+JS_ESCAPE = re.compile(
+    r"(\\*)\\(?:u\{([0-9a-fA-F]{1,6})\}|u([0-9a-fA-F]{4})|x([0-9a-fA-F]{2}))"
+)
 TAG = re.compile(r"<[^>]+>")
 BODY = re.compile(r"<body\b[^>]*>(.*?)</body>", re.S | re.I)
 META = re.compile(r"<meta\b[^>]*>", re.I)
@@ -93,15 +95,22 @@ def decode_js_escapes(text: str) -> str:
     working if that changes, which is the failure mode worth guarding: it would
     report clean rather than error.
 
-    Only escapes preceded by an even number of backslashes are active. In
-    ``\\\\u2014`` the backslash is itself escaped and the text is literal.
+    Only escapes preceded by an even number of backslashes are active. Where the
+    backslash is itself escaped, the text is literal and stays literal.
+
+    Widths are exact, and getting that wrong is silent. An unbraced ``\\u`` takes
+    exactly four hex digits, so JavaScript reads ``"\\u2014and"`` as an em dash
+    followed by ``and``. A pattern allowing up to six consumed ``2014a`` as one
+    code point, produced a different character, and missed the dash entirely.
+    Braced ``\\u{...}`` takes one to six; ``\\x`` takes exactly two.
     """
 
     def sub(m: re.Match[str]) -> str:
         prefix = m.group(1)
         if len(prefix) % 2:
             return m.group(0)
-        return prefix + chr(int(m.group(2) or m.group(3), 16))
+        digits = m.group(2) or m.group(3) or m.group(4)
+        return prefix + chr(int(digits, 16))
 
     return JS_ESCAPE.sub(sub, text)
 
@@ -124,7 +133,7 @@ def script_text(root: pathlib.Path, markup: str) -> list[tuple[str, str]]:
     """
     out = []
     for block in INLINE_SCRIPT.findall(markup):
-        out.append(("inline script", block))
+        out.append(("inline script", decode_js_escapes(block)))
     for src in SCRIPT_SRC.findall(markup):
         name = src.split("/")[-1]
         for candidate in root.rglob(name):

@@ -1,9 +1,10 @@
 name: check
 
-# Two things that can silently rot:
+# Three things that can silently rot:
 #   1. the bundle stops validating against the LOKF schema
 #   2. the committed knowledge.ttl drifts from the concepts it was generated from
-# Both are cheap to check and neither is caught by the pages build.
+#   3. banned typography reaches the published site, where nothing else looks
+# All three are cheap to check and none is caught by the pages build.
 #
 # This runs `just check` rather than repeating its commands. An earlier version
 # inlined them, which meant the version pins in the justfile did not apply here:
