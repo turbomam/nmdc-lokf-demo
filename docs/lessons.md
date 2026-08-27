@@ -135,14 +135,14 @@ serves it as `text/plain`, from a host that makes no availability promise for th
 It now points at a commit:
 
 ```
-https://raw.githubusercontent.com/nicholsn/lokf/a723ac0a/lokf.context.jsonld
+https://raw.githubusercontent.com/nicholsn/lokf/a723ac0a8ab84b910f55d1f714de980ed49ebe8c/lokf.context.jsonld
 ```
 
-`a723ac0a` is the commit tagged `v0.5.0` upstream, matching the `lokf==0.5.0` pinned everywhere
+`a723ac0a8ab84b910f55d1f714de980ed49ebe8c` is the commit tagged `v0.5.0` upstream, matching the `lokf==0.5.0` pinned everywhere
 else here. A commit rather than the tag, because a tag can be moved and a commit cannot.
 
 **Why this is worth doing even though nothing was broken.** All three of `main`, `v0.5.0` and
-`a723ac0a` were byte-identical when pinned, and identical to the context inside the installed
+`a723ac0a8ab84b910f55d1f714de980ed49ebe8c` were byte-identical when pinned, and identical to the context inside the installed
 0.5.0 wheel. So the change altered stability and not semantics, which is exactly the point: there
 was nothing to notice, and there would have been nothing to notice on the day it started
 mattering either.
