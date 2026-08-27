@@ -114,9 +114,9 @@ maintains which part, and the four related repositories with what each owns.
 ## Reproduce
 
 ```bash
-uvx --from 'lokf[build]' lokf validate knowledge     # -> OK, 6 concepts
-uvx --from lokf lokf convert knowledge --format ttl -o knowledge.ttl
-uvx --from lokf lokf query knowledge "$(cat queries/producer-and-host.rq)"
+uvx --from 'lokf[build]==0.5.0' lokf validate knowledge     # -> OK, 6 concepts
+uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o knowledge.ttl
+uvx --from 'lokf==0.5.0' lokf query knowledge "$(cat queries/producer-and-host.rq)"
 ```
 
 The `[build]` extra on the first line is required: `lokf validate` alone fails in a default

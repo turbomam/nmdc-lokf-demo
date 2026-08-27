@@ -55,12 +55,15 @@ By hand, without `just`:
 
 ```bash
 # just check   (validate, then confirm knowledge.ttl matches the concepts; read-only)
-uvx --from 'lokf[build]==0.5.0' lokf validate knowledge
-tmp=$(mktemp -t knowledge.XXXXXX.ttl)
-trap 'rm -f "$tmp"' EXIT
-uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o "$tmp"
-diff -u knowledge.ttl "$tmp" || { echo "knowledge.ttl is out of date. Regenerate with: just ttl" >&2; exit 1; }
-echo "knowledge.ttl is current."
+(
+  set -euo pipefail
+  uvx --from 'lokf[build]==0.5.0' lokf validate knowledge
+  tmp=$(mktemp -t knowledge.XXXXXX.ttl)
+  trap 'rm -f "$tmp"' EXIT
+  uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o "$tmp"
+  diff -u knowledge.ttl "$tmp" || { echo "knowledge.ttl is out of date. Regenerate with: just ttl" >&2; exit 1; }
+  echo "knowledge.ttl is current."
+)
 
 # just ttl     (regenerate the committed Turtle in place)
 uvx --from 'lokf==0.5.0' lokf convert knowledge --format ttl -o knowledge.ttl
@@ -78,8 +81,10 @@ uvx --from 'lokf==0.5.0' lokf serve knowledge
 uvx --from 'lokf==0.5.0' lokf query knowledge "$(cat queries/producer-and-host.rq)"
 ```
 
-The `check` block uses `trap` rather than a trailing `rm` on purpose: a trailing `rm` becomes the
-exit status of the whole sequence, so stale Turtle would exit 0 and pass in automation.
+The `check` block runs inside `( ... )` and uses `trap` rather than a trailing `rm`, both on
+purpose. A trailing `rm` becomes the exit status of the whole sequence, so stale Turtle would exit
+0 and pass in automation. The subshell keeps the `trap` and the `set -e` out of the shell you are
+typing in, which is what the `just` recipe gets for free by being a script.
 
 `just tables` writes to `build/tables`, which is untracked scratch space. The CSVs committed under
 `docs/examples/` are documentation fixtures; copy them there deliberately when you mean to update
@@ -141,10 +146,10 @@ rather than field by field:
 
 ```bash
 OLD=https://turbomam.github.io/nmdc-lokf-demo
-NEW=https://<you>.github.io/<your-repo>
+NEW="https://YOURNAME.github.io/YOURREPO"   # quote it: bare <> are shell redirections
 grep -rl "$OLD" knowledge/ src/ | xargs sed -i '' "s|$OLD|$NEW|g"   # macOS; drop the '' on GNU sed
-sed -i '' "s|https://turbomam.github.io|https://<you>.github.io|" astro.config.mjs  # site
-sed -i '' "s|/nmdc-lokf-demo|/<your-repo>|g" astro.config.mjs                       # both base values
+sed -i '' "s|https://turbomam.github.io|https://YOURNAME.github.io|" astro.config.mjs  # site
+sed -i '' "s|/nmdc-lokf-demo|/YOURREPO|g" astro.config.mjs                            # both base values
 grep -rn "turbomam.github.io" knowledge/ src/ astro.config.mjs       # expect no output
 just ttl        # concept IRIs changed, so the committed Turtle is now stale
 just check      # only meaningful after the regeneration above
