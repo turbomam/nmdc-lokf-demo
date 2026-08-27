@@ -9,6 +9,10 @@
   --accent-2: #d98a3d;
   --accent-ink: #8f3d16;
   --accent-soft: #f5e9dd;
+  /* Footer link and text are a measured pair: 3.11:1 against each other, so an
+     inline footer link stays distinguishable even where the underline is missed. */
+  --footer-text: #6d675d;
+  --footer-link: #1b1a17;
   --grad: linear-gradient(115deg, var(--accent), var(--accent-2));
   --shadow-sm: 0 1px 2px rgba(60, 40, 20, 0.05);
   --shadow-md: 0 6px 22px rgba(60, 40, 20, 0.09);
@@ -33,6 +37,12 @@
     --accent-2: #ecb56d;
     --accent-ink: #f0a973;
     --accent-soft: #2b2417;
+    /* Dark needs its own pair. --muted (#a89f90) cannot reach 3:1 against any
+       colour that is still legible on --surface: even pure white only gets to
+       2.62:1. Dimming the footer text to #948b7e (5.06:1 on --surface) lets the
+       link reach 3.36:1. */
+    --footer-text: #948b7e;
+    --footer-link: #ffffff;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 6px 22px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.5);
@@ -60,6 +70,31 @@ body {
 
 a { color: var(--accent-ink); text-decoration: none; text-underline-offset: 3px; }
 a:hover { text-decoration: underline; }
+
+/* A link sitting inside a sentence has no size, position or spacing to mark it,
+   so colour was doing all the work: WCAG 1.4.1 wants 3:1 against the surrounding
+   text when colour is the only cue, and in the footer the ratio was 1.00:1
+   because link and text were the same token. Underline anchors inside running
+   prose by default and let the nav, cards and lede links opt out, rather than
+   patching each component. */
+p a,
+li a,
+dd a,
+blockquote a,
+figcaption a,
+table a,
+.tagline a {
+  text-decoration: underline;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 3px;
+}
+
+/* These are block-level or card-like: large, separated, obviously interactive. */
+.lede-links a,
+.site-header nav a,
+.card a {
+  text-decoration: none;
+}
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
 
 h1, h2, h3 {
@@ -202,10 +237,16 @@ article :is(h2, h3) { scroll-margin-top: 5rem; }
 /* Footer */
 .site-footer {
   border-top: 1px solid var(--border); margin-top: 3.5rem;
-  padding: 1.8rem 1.5rem; text-align: center; color: var(--muted); font-size: 0.86rem;
+  padding: 1.8rem 1.5rem; text-align: center; color: var(--footer-text); font-size: 0.86rem;
   background: var(--surface);
 }
-.site-footer a { color: var(--muted); font-weight: 500; }
+.site-footer a {
+  color: var(--footer-link);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 3px;
+}
 .site-footer a:hover { color: var(--accent-ink); }
 
 @media (max-width: 34rem) {
